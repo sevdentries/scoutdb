@@ -1,0 +1,93 @@
+{
+"name":"MASTERJSON",
+"desc":"JSON handling for inventory and logging, welcome back kanye west.",
+"datemodified":1785276123.3973985,
+"usrmaster":{
+    "tags":["Beaver","Cub","Scout","Venturer","Rover","Parent"],
+    "count":3,
+    "members":{
+        "123456":{
+            "firstname":"Bob",
+            "lastname":"Dylan",
+            "telephone":"7789564705",
+            "birthdate":"December 12, 2009",
+            "tags":["Beaver"],
+            "notes":"this is a test note."
+        },
+        "223456":{
+            "firstname":"Sunny",
+            "lastname":"Ron",
+            "telephone":"1232233234",
+            "birthdate":"December 12, 2009",
+            "tags":["Beaver"],
+            "notes":"this is a test note."
+        },
+        "323456":{
+            "firstname":"Steve",
+            "lastname":"Jobs",
+            "telephone":"1232233234",
+            "birthdate":"December 12, 2009",
+            "tags":["Beaver"],
+            "notes":"this is a test note."
+        }
+    }
+},
+
+"invmaster":{
+    "tags":["stove","cookware","tent"],
+    "count":5,
+    "members":{
+        "123456":{
+            "name":"MEC Camper 2+",
+            "tags":["tent"],
+            "checkout":{
+                "status":"in",
+                "lastcheckout":{"123456":1785285031.6054764},
+                "notes":"this is a test note."
+
+            }
+        },
+        "223456":{
+            "name":"Big Pot",
+            "tags":["cookware"],
+            "checkout":{
+                "status":"in",
+                "lastcheckout":{"123456":1785285031.6054764},
+                "notes":"this is a test note."
+
+            }
+        },
+        "323456":{
+            "name":"MEC Camper 4",
+            "tags":["tent"],
+            "checkout":{
+                "status":"in",
+                "lastcheckout":{"123456":1785285031.6054764},
+                "notes":"this is a test note."
+
+            }
+        },
+        "423456":{
+            "name":"MEC Camper 2",
+            "tags":["tent"],
+            "checkout":{
+                "status":"in",
+                "lastcheckout":{"123456":1785285031.6054764},
+                "notes":"this is a test note."
+
+            }
+        },
+        "523456":{
+            "name":"MEC Camper 2+",
+            "tags":["tent"],
+            "checkout":{
+                "status":"in",
+                "lastcheckout":{"123456":1785285031.6054764},
+                "notes":"this is a test note."
+
+            }
+        }
+    }
+}
+
+}
