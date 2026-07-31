@@ -3,12 +3,28 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 from pathlib import Path
+import json
 #GLOBALS BELOW
 root = Tk()
 root.geometry("800x500")
 root.title("ScoutDB")
 root.configure(bg="#f0f0f0")
 directory = Path(__file__).resolve()
+
+#JSONLOADER BELOW
+jsondecoder = json.JSONDecoder()
+jsono = ""
+jsondir = os.path.join(str(directory.parent),"Assets","master.json")
+print("attempting json loading...")
+print("loading from "+jsondir)
+try:
+    with open(jsondir, "r") as f:
+        jsono = f.read()
+        jsono = jsondecoder.raw_decode(jsono)
+except Exception as e:
+    print("error",e)
+finally:
+    print("success")
 
 #WINDOWS BELOW
 invwindow = Toplevel(root)
