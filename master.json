@@ -63,7 +63,7 @@
             "name":"MEC Camper 4",
             "tags":["tent"],
             "checkout":{
-                "status":"out",
+                "status":"in",
                 "lastcheckout":{"123456":1785285031.6054764},
                 "lastexpected":"June 14, next meeting",
                 "notes":"this is a test note."
@@ -74,7 +74,7 @@
             "name":"MEC Camper 2",
             "tags":["tent"],
             "checkout":{
-                "status":"out",
+                "status":"in",
                 "lastcheckout":{"123456":1785285031.6054764},
                 "lastexpected":"June 14, next meeting",
                 "notes":"this is a test note."
