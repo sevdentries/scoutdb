@@ -337,9 +337,10 @@ if True:
             else:
                 invdetailstracked.config(text="Tracked: No")
             invdetailsstatus.config(text="Status: "+checkoutview["status"])
-            buildmember = next(iter(checkoutview["lastcheckout"])) #"123456"
-            buildmember = jsono #################################################################################
-                    
+            builduser = next(iter(checkoutview["lastcheckout"])) #"123456"
+            buildmember = jsono["usrmaster"]["members"][builduser]["firstname"]+" "+jsono["usrmaster"]["members"][builduser]["lastname"] 
+            buildtime = datetime.fromtimestamp(checkoutview["lastcheckout"][builduser]).isoformat()
+            invdetailslastcheckout.config(text="Last Checkout: "+buildtime+", to "+buildmember)
 
         else:
             print("ERROR: inv member not found",select)
