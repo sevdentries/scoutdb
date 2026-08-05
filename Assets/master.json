@@ -40,6 +40,7 @@
         "123456":{
             "name":"MEC Camper 2+",
             "tags":["tent"],
+            "tracked":1,
             "checkout":{
                 "status":"in",
                 "lastcheckout":{"123456":1785285031.6054764},
@@ -51,6 +52,7 @@
         "223456":{
             "name":"Big Pot",
             "tags":["cookware"],
+            "tracked":1,
             "checkout":{
                 "status":"in",
                 "lastcheckout":{"123456":1785285031.6054764},
@@ -62,6 +64,7 @@
         "323456":{
             "name":"MEC Camper 4",
             "tags":["tent"],
+            "tracked":1,
             "checkout":{
                 "status":"out",
                 "lastcheckout":{"123456":1785285031.6054764},
@@ -73,6 +76,7 @@
         "423456":{
             "name":"MEC Camper 2",
             "tags":["tent"],
+            "tracked":1,
             "checkout":{
                 "status":"out",
                 "lastcheckout":{"123456":1785285031.6054764},
@@ -84,6 +88,7 @@
         "523456":{
             "name":"Primus 2 Burner Stove",
             "tags":["stove"],
+            "tracked":1,
             "checkout":{
                 "status":"in",
                 "lastcheckout":{"123456":1785285031.6054764},
