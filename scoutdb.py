@@ -121,16 +121,26 @@ if True:
 #JSONLOADER BELOW
 if True:
     jsondecoder = json.JSONDecoder()
-    jsono = ""
-    jsondir = os.path.join(str(directory.parent),"Assets","master.json")
+    master = ""
+    attlog = ""
+    invlog = ""
+    masterdir = os.path.join(str(directory.parent),"Assets","master.json")
+    attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
+    invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
     print("attempting json loading...")
-    print("loading from "+jsondir)
+    print("loading from "+masterdir)
     try:
-        with open(jsondir, "r") as f:
-            jsono = f.read()
-            jsono, index = jsondecoder.raw_decode(jsono)
+        with open(masterdir, "r") as f:
+            master = f.read()
+            master, index = jsondecoder.raw_decode(master)
+        with open(attdir, "r") as f:
+            attlog = f.read()
+            attlog, index = jsondecoder.raw_decode(attlog)
+        with open(invdir, "r") as f:
+            invlog = f.read()
+            invlog, index = jsondecoder.raw_decode(invlog)
     except Exception as e:
-        print("error",e)
+        print("ERROR:",e)
     finally:
         print("success")
 
@@ -158,18 +168,33 @@ if True:
     secwindow.withdraw()
 #WINDOWFUNCS BELOW
 def refreshjson():
-    global jsono
+    global master
     jsondecoder = json.JSONDecoder()
-    jsono = ""
-    jsondir = os.path.join(str(directory.parent),"Assets","master.json")
+    master = ""
+    attlog = ""
+    invlog = ""
+    masterdir = os.path.join(str(directory.parent),"Assets","master.json")
     print("attempting json loading...")
-    print("loading from "+jsondir)
+    print("loading from "+masterdir)
     try:
-        with open(jsondir, "r") as f:
-            jsono = f.read()
-            jsono, index = jsondecoder.raw_decode(jsono)
+        with open(masterdir, "r") as f:
+            master = f.read()
+            master, index = jsondecoder.raw_decode(master)
     except Exception as e:
-        print("error",e)
+        print("ERROR:",e)
+    finally:
+        print("success")
+
+def savejson():
+    global master
+    masterdir = os.path.join(str(directory.parent),"Assets","master.json")
+    print("attempting json saving...")
+    print("saving to "+masterdir)
+    try:
+        with open(masterdir, "w") as f:
+            json.dump(master, f, indent=4)
+    except Exception as e:
+        print("ERROR:",e)
     finally:
         print("success")
 
@@ -214,6 +239,38 @@ def makescrollable(parent):
     inner.bind("<Configure>", on_inner_configure)
     canvas.bind("<Configure>", on_canvas_configure)
     return outer, inner, canvas
+
+def jsoncheckinout(event, group, inout, id, owner="N/A"):
+    '''
+    global function for handling json editing for check ins and outs.
+    event: triggering event for entrybinds.
+    group: "inv" or "att".
+    inout: "in" or "out". Checks in and out.
+    id: pass the product/user id.
+    owner: for inventory, pass if checking out.
+    '''
+    global master
+    if group == "att":
+        pass
+    elif group == "inv":
+        if inout == "in":
+            #checking items in
+            if id in master["invmaster"]["members"]:
+                print("id found")
+                if master["invmaster"]["members"][id]["checkout"]["status"] == "in":
+                    e = "ERROR: item already checked in"
+                    return False, e
+                else:
+                    master["invmaster"]["members"][id]["checkout"]["status"] = "in"
+
+            else:
+                e = "ERROR: id not found"
+                return False, e
+                
+
+
+            
+
 
 if True: #WINDOWCONFIG
     for col in range(11):
@@ -280,7 +337,18 @@ if True:
     #CHECK IN FRAME ELEMENTS BELOW
     if True:
         invcheckintitle = Label(invcheckincontent, text="Check In", font=("Helvetica", 14, "bold", "italic"))
+        invcheckinintro = Label(invcheckincontent, text="In the \"Check In\" page, you can check in gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        invcheckinlabel1 = Label(invcheckincontent, text="Enter item ID:")
+        invcheckinentry = Entry(invcheckincontent)
+
+#################################################
+
         invcheckintitle.grid(row=0, column=0, sticky=NW)
+        invcheckinintro.grid(row=1, column=0, sticky=NW)
+        invcheckinlabel1.grid(row=2, column=0, sticky=NW)
+        invcheckinentry.grid(row=3, column=0, sticky=NW)
+
+
 
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
@@ -317,53 +385,60 @@ if True:
         invdetailscanvas.configure(width=600)
 
     def invlistboxviewdetails(event):
-        global jsono
+        global master
         compsel = invlistbox.curselection() #[index num]
         select = invlistbox.get(compsel[0]) #"987654:THING"
         select = select.split(":")[0]
-        if select in jsono["invmaster"]["members"]:
+        if select in master["invmaster"]["members"]:
             tagflag = False
-            view = jsono["invmaster"]["members"][select]
-            checkoutview = jsono["invmaster"]["members"][select]["checkout"]
+            view = master["invmaster"]["members"][select]
+            checkoutview = master["invmaster"]["members"][select]["checkout"]
 
             invdetailsname.config(text="Name: " + view["name"])
             for tag in view["tags"]:
                 if tagflag == False:
                     tagbuild = "Tags: "+tag
                     tagflag = True
-                tagbuild += ", "+tag
+                else:
+                    tagbuild += ", "+tag
+            invdetailstag.config(text=tagbuild)
+                
             if view["tracked"] == 1:
                 invdetailstracked.config(text="Tracked: Yes")
             else:
                 invdetailstracked.config(text="Tracked: No")
             invdetailsstatus.config(text="Status: "+checkoutview["status"])
             builduser = next(iter(checkoutview["lastcheckout"])) #"123456"
-            buildmember = jsono["usrmaster"]["members"][builduser]["firstname"]+" "+jsono["usrmaster"]["members"][builduser]["lastname"] 
+            buildmember = master["usrmaster"]["members"][builduser]["firstname"]+" "+master["usrmaster"]["members"][builduser]["lastname"] 
             buildtime = datetime.fromtimestamp(checkoutview["lastcheckout"][builduser]).isoformat()
+            buildtime = buildtime.split(".")[0]
+            buildtime = buildtime.replace("T",", ")
             invdetailslastcheckout.config(text="Last Checkout: "+buildtime+", to "+buildmember)
+            invdetailsnotes.config(text="Notes: "+checkoutview["notes"])
+            invtab.select(invdetailsframe)
 
         else:
             print("ERROR: inv member not found",select)
 
     def invlistboxupdate():
-        global jsono
+        global master
         refreshjson()
         invlistbox.delete(0, END)
         confignum = 0
 
-        for item in jsono["invmaster"]["members"]:
-            if jsono["invmaster"]["members"][item]["tracked"] == 1:
-                invlistbox.insert(END, str(item)+":"+jsono["invmaster"]["members"][item]["name"])
-                if jsono["invmaster"]["members"][item]["checkout"]["status"] == "in":
+        for item in master["invmaster"]["members"]:
+            if master["invmaster"]["members"][item]["tracked"] == 1:
+                invlistbox.insert(END, str(item)+":"+master["invmaster"]["members"][item]["name"])
+                if master["invmaster"]["members"][item]["checkout"]["status"] == "in":
                     invlistbox.itemconfig(confignum, bg="green")
-                elif jsono["invmaster"]["members"][item]["checkout"]["status"] == "out":
+                elif master["invmaster"]["members"][item]["checkout"]["status"] == "out":
                     invlistbox.itemconfig(confignum, bg="red")
             else:
                 invlistbox.insert(END, str(item)+": "+item["name"])
                 invlistbox.itemconfig(confignum, bg="gray")
             confignum += 1
         """
-        for item in jsono["invmaster"]["members"].values():
+        for item in master["invmaster"]["members"].values():
             invlistbox.insert(END, item["name"])
             if item["checkout"]["status"] == "in":
                 invlistbox.itemconfig(confignum, bg="green")
