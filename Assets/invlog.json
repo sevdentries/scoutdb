@@ -1,70 +1,70 @@
 {
-    "name":"invlog",
-    "desc":"inventory based log, used for storing dates and times. names are not listed here for security purposes.", 
+    "name": "invlog",
+    "desc": "inventory based log, used for storing dates and times. names are not listed here for security purposes.",
     "members": {
-        "123456":{
-            "current":"out",
-            "1787035205.7394025":{
-                "status":"out",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+        "123456": {
+            "current": "out",
+            "1787035205.7394025": {
+                "status": "out",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             },
-            "1785285031.6054764":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+            "1785285031.6054764": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             }
         },
-        "223456":{
-            "current":"in",
-            "1787035205.7394025":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+        "223456": {
+            "current": "in",
+            "1787035205.7394025": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             },
-            "1785285031.6054764":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+            "1785285031.6054764": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             }
         },
-        "323456":{
-            "current":"out",
-            "1787035205.7394025":{
-                "status":"out",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+        "323456": {
+            "current": "out",
+            "1787035205.7394025": {
+                "status": "out",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             },
-            "1785285031.6054764":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+            "1785285031.6054764": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             }
         },
-        "423456":{
-            "current":"out",
-            "1787035205.7394025":{
-                "status":"out",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+        "423456": {
+            "current": "out",
+            "1787035205.7394025": {
+                "status": "out",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             },
-            "1785285031.6054764":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+            "1785285031.6054764": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             }
         },
-        "523456":{
-            "current":"in",
-            "1787035205.7394025":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+        "523456": {
+            "current": "in",
+            "1787035205.7394025": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             },
-            "1785285031.6054764":{
-                "status":"in",
-                "lastexpected":"1787035206.7394025",
-                "notes":"this is a test note."
+            "1785285031.6054764": {
+                "status": "in",
+                "lastexpected": "1787035206.7394025",
+                "notes": "this is a test note."
             }
         }
     }

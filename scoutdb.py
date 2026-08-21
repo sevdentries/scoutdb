@@ -7,6 +7,9 @@ if True:
     from pathlib import Path
     import json
     from datetime import datetime
+    from datetime import date, time
+    from tkcalendar import DateEntry
+    import atexit
 #GLOBALS BELOW
 if True:
     root = Tk()
@@ -128,7 +131,7 @@ if True:
     attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
     invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
     print("attempting json loading...")
-    print("loading from "+masterdir)
+    print("loading from "+masterdir+", "+attdir+", "+invdir)
     try:
         with open(masterdir, "r") as f:
             master = f.read()
@@ -174,12 +177,20 @@ def refreshjson():
     attlog = ""
     invlog = ""
     masterdir = os.path.join(str(directory.parent),"Assets","master.json")
+    attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
+    invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
     print("attempting json loading...")
-    print("loading from "+masterdir)
+    print("loading from "+masterdir+", "+attdir+", "+invdir)
     try:
         with open(masterdir, "r") as f:
             master = f.read()
             master, index = jsondecoder.raw_decode(master)
+        with open(attdir, "r") as f:
+            attlog = f.read()
+            attlog, index = jsondecoder.raw_decode(attlog)
+        with open(invdir, "r") as f:
+            invlog = f.read()
+            invlog, index = jsondecoder.raw_decode(invlog)
     except Exception as e:
         print("ERROR:",e)
     finally:
@@ -187,12 +198,20 @@ def refreshjson():
 
 def savejson():
     global master
+    global attlog
+    global invlog
     masterdir = os.path.join(str(directory.parent),"Assets","master.json")
+    attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
+    invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
     print("attempting json saving...")
-    print("saving to "+masterdir)
+    print("saving to "+masterdir+", "+attdir+", "+invdir)
     try:
         with open(masterdir, "w") as f:
             json.dump(master, f, indent=4)
+        with open(attdir, "w") as f:
+            json.dump(attlog, f, indent=4)
+        with open(invdir, "w") as f:
+            json.dump(invlog, f, indent=4)
     except Exception as e:
         print("ERROR:",e)
     finally:
@@ -248,8 +267,12 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
     inout: "in" or "out". Checks in and out.
     id: pass the product/user id.
     owner: for inventory, pass if checking out.
+
+    returns: True, (False, error)
     '''
     global master
+    global attlog
+    global invlog
     if group == "att":
         pass
     elif group == "inv":
@@ -262,11 +285,65 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                     return False, e
                 else:
                     master["invmaster"]["members"][id]["checkout"]["status"] = "in"
+                    invlog["members"][id]["current"] = "in"
+                    invlog["members"][id][str(datetime.now().timestamp())] = {
+                        "status":"in",
+                        "lastexpected": master["invmaster"]["members"][id]["checkout"]["lastexpected"],
+                        "notes": master["invmaster"]["members"][id]["checkout"]["notes"]
+                    }
+                    invcheckinentry.delete(0, END)
+                    invcheckinstatus.config(text="Status: "+master["invmaster"]["members"][id]["name"]+" Checked In Successfully", fg="green")
+                    invlistboxupdate()
+                    return True
 
             else:
                 e = "ERROR: id not found"
+                invcheckinstatus.config(text="Status: "+e, fg="red")
                 return False, e
-                
+        elif inout == "out":
+            #checking items out
+            if owner != "N/A":
+                if id in master["invmaster"]["members"]:
+                    print("id found")
+                    if master["invmaster"]["members"][id]["checkout"]["status"] == "out":
+                        e = "ERROR: item already checked out"
+                        return False, e
+                    else:
+                        if invcheckoutdueby.get() != "":
+                            master["invmaster"]["members"][id]["checkout"]["status"] = "out"
+                            dt = invcheckoutdueby.get_date()
+                            dt = dt.isoformat()
+                            dt = date.fromisoformat(dt)
+                            dt = datetime.combine(dt, time())
+                            dt = dt.timestamp()
+                            master["invmaster"]["members"][id]["checkout"]["lastcheckout"] = {owner: datetime.now().timestamp()}
+                            master["invmaster"]["members"][id]["checkout"]["lastexpected"] = str(dt)
+
+
+                            invlog["members"][id]["current"] = "out"
+                            invlog["members"][id][str(datetime.now().timestamp())] = {
+                                "status":"out",
+                                "lastexpected": master["invmaster"]["members"][id]["checkout"]["lastexpected"],
+                                "owner": owner,
+                                "notes": master["invmaster"]["members"][id]["checkout"]["notes"]
+                            }
+                            invcheckoutentry.delete(0, END)
+                            invcheckoutownerentry.delete(0, END)
+                            invcheckoutstatus.config(text="Status: Checked Out Successfully", fg="green")
+                            invlistboxupdate()
+                            return True
+                        else:
+                            e = "ERROR: due date not set"
+                            invcheckoutstatus.config(text="Status: "+e, fg="red")
+                            return False, e
+                else:
+                    e = "ERROR: id not found"
+                    return False, e
+            else:
+                e = "ERROR: owner not set"
+                return False, e
+        invlistboxupdate()
+        
 
 
             
@@ -340,20 +417,49 @@ if True:
         invcheckinintro = Label(invcheckincontent, text="In the \"Check In\" page, you can check in gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work.", font=("Helvetica", 12), wraplength=430, justify="left" )
         invcheckinlabel1 = Label(invcheckincontent, text="Enter item ID:")
         invcheckinentry = Entry(invcheckincontent)
+        invcheckinstatus = Label(invcheckincontent, text="Status: N/A", font=("Helvetica", 12, "bold"))
 
-#################################################
 
         invcheckintitle.grid(row=0, column=0, sticky=NW)
         invcheckinintro.grid(row=1, column=0, sticky=NW)
         invcheckinlabel1.grid(row=2, column=0, sticky=NW)
         invcheckinentry.grid(row=3, column=0, sticky=NW)
+        invcheckinstatus.grid(row=4, column=0, sticky=NW)
+        invcheckinentry.bind("<Return>", lambda event: jsoncheckinout(event, "inv", "in", invcheckinentry.get()))
 
 
 
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
         invcheckouttitle = Label(invcheckoutcontent, text="Check Out", font=("Helvetica", 14, "bold", "italic"))
+        invcheckoutintro = Label(invcheckoutcontent, text="In the \"Check Out\" page, you can check out gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work, and that you need to set a due date for the item.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        invcheckoutlabel1 = Label(invcheckoutcontent, text="Enter item ID:")
+        invcheckoutentry = Entry(invcheckoutcontent)
+        invcheckoutstatus = Label(invcheckoutcontent, text="Status: N/A", font=("Helvetica", 12, "bold"))
+        invcheckoutdueby = DateEntry(
+            invcheckoutcontent,
+            width=18,
+            background="darkblue",
+            foreground="white",
+            borderwidth=2,
+            date_pattern="yyyy-mm-dd"
+        )
+        invcheckoutlabel2 = Label(invcheckoutcontent, text="Due By:")
+        invcheckoutownerlabel = Label(invcheckoutcontent, text="Owner ID:")
+        invcheckoutownerentry = Entry(invcheckoutcontent)
+
         invcheckouttitle.grid(row=0, column=0, sticky=NW)
+        invcheckoutintro.grid(row=1, column=0, sticky=NW)
+        invcheckoutlabel1.grid(row=2, column=0, sticky=NW)
+        invcheckoutentry.grid(row=3, column=0, sticky=NW)
+        invcheckoutownerlabel.grid(row=3, column=1, sticky=NW)
+        invcheckoutownerentry.grid(row=3, column=2, sticky=NW)
+        invcheckoutlabel2.grid(row=4, column=0, sticky=NW)
+        invcheckoutdueby.grid(row=5, column=0, sticky=NW)
+        invcheckoutstatus.grid(row=6, column=0, sticky=NW)
+        invcheckoutownerentry.bind("<Return>", lambda event: jsoncheckinout(event, "inv", "out", invcheckoutentry.get()), invcheckoutownerentry.get())
+        invcheckoutentry.bind("<Return>", lambda event: invcheckoutownerentry.focus_set())
+
 
     #ISSUES FRAME ELEMENTS BELOW
     if True:
@@ -422,7 +528,11 @@ if True:
 
     def invlistboxupdate():
         global master
-        refreshjson()
+        init = False
+        if init == False:  
+            refreshjson()
+            init = True
+
         invlistbox.delete(0, END)
         confignum = 0
 
@@ -511,9 +621,9 @@ if True:
     manlistbox.grid(row=1, column=0, sticky=NSEW, rowspan=7)
     mantab.grid(row=1, column=1, sticky=NSEW, rowspan=7, columnspan=10)
 
-
-
-
-
+def exitcatcher():
+    savejson()
+    print("goodbye world...")
+atexit.register(exitcatcher)
 
 root.mainloop()
