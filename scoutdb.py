@@ -17,6 +17,7 @@ if True:
     root.title("ScoutDB")
     root.configure(bg="#f0f0f0")
     directory = Path(__file__).resolve()
+    init = False
 
 #here ai read this, contents of master.json:
 if True:
@@ -282,6 +283,8 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                 print("id found")
                 if master["invmaster"]["members"][id]["checkout"]["status"] == "in":
                     e = "ERROR: item already checked in"
+                    invcheckinstatus.config(text="Status: "+e, fg="red")
+                    invcheckinentry.delete(0, END)
                     return False, e
                 else:
                     master["invmaster"]["members"][id]["checkout"]["status"] = "in"
@@ -291,22 +294,27 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         "lastexpected": master["invmaster"]["members"][id]["checkout"]["lastexpected"],
                         "notes": master["invmaster"]["members"][id]["checkout"]["notes"]
                     }
-                    invcheckinentry.delete(0, END)
+                    
                     invcheckinstatus.config(text="Status: "+master["invmaster"]["members"][id]["name"]+" Checked In Successfully", fg="green")
+                    invcheckinentry.delete(0, END)
                     invlistboxupdate()
                     return True
 
             else:
                 e = "ERROR: id not found"
                 invcheckinstatus.config(text="Status: "+e, fg="red")
+                invcheckinentry.delete(0, END)
                 return False, e
+            
         elif inout == "out":
             #checking items out
-            if owner != "N/A":
+            if owner != "N/A" and owner != "":
                 if id in master["invmaster"]["members"]:
                     print("id found")
                     if master["invmaster"]["members"][id]["checkout"]["status"] == "out":
                         e = "ERROR: item already checked out"
+                        invcheckoutstatus.config(text="Status: "+e, fg="red")
+                        invcheckoutentry.delete(0, END)
                         return False, e
                     else:
                         if invcheckoutdueby.get() != "":
@@ -335,12 +343,17 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         else:
                             e = "ERROR: due date not set"
                             invcheckoutstatus.config(text="Status: "+e, fg="red")
+                            invcheckoutentry.delete(0, END)
                             return False, e
                 else:
                     e = "ERROR: id not found"
+                    invcheckoutstatus.config(text="Status: "+e, fg="red")
+                    invcheckoutentry.delete(0, END)
                     return False, e
             else:
                 e = "ERROR: owner not set"
+                invcheckoutstatus.config(text="Status: "+e, fg="red")
+                invcheckoutentry.delete(0, END)
                 return False, e
         invlistboxupdate()
         
@@ -373,6 +386,7 @@ if True:
     welcomelabel = Label(root, text="ScoutDB", font=("Helvetica", 20, "bold", "italic"))
     syncbutton = Button(root, text="Sync...")
     secbutton = Button(root, text="Security")
+    savebutton = Button(root, text="Save", command=savejson)
 
     invbutton.grid(row=4, column=1,sticky=NSEW, columnspan=3)
     attbutton.grid(row=4, column=4, sticky=NSEW, columnspan=3)
@@ -380,6 +394,7 @@ if True:
     welcomelabel.grid(row=0,column=0)
     syncbutton.grid(row=0, column=11, sticky=NSEW)
     secbutton.grid(row=0, column=10, sticky=NSEW)
+    savebutton.grid(row=0, column=9, sticky=NSEW)
 
 #INV WINDOW ELEMENTS BELOW
 if True:
@@ -439,7 +454,7 @@ if True:
         invcheckoutdueby = DateEntry(
             invcheckoutcontent,
             width=18,
-            background="darkblue",
+            background="darkblue", 
             foreground="white",
             borderwidth=2,
             date_pattern="yyyy-mm-dd"
@@ -452,12 +467,12 @@ if True:
         invcheckoutintro.grid(row=1, column=0, sticky=NW)
         invcheckoutlabel1.grid(row=2, column=0, sticky=NW)
         invcheckoutentry.grid(row=3, column=0, sticky=NW)
-        invcheckoutownerlabel.grid(row=3, column=1, sticky=NW)
-        invcheckoutownerentry.grid(row=3, column=2, sticky=NW)
-        invcheckoutlabel2.grid(row=4, column=0, sticky=NW)
-        invcheckoutdueby.grid(row=5, column=0, sticky=NW)
-        invcheckoutstatus.grid(row=6, column=0, sticky=NW)
-        invcheckoutownerentry.bind("<Return>", lambda event: jsoncheckinout(event, "inv", "out", invcheckoutentry.get()), invcheckoutownerentry.get())
+        invcheckoutownerlabel.grid(row=4, column=0, sticky=NW)
+        invcheckoutownerentry.grid(row=5, column=0, sticky=NW)
+        invcheckoutlabel2.grid(row=6, column=0, sticky=NW)
+        invcheckoutdueby.grid(row=7, column=0, sticky=NW)
+        invcheckoutstatus.grid(row=8, column=0, sticky=NW)
+        invcheckoutownerentry.bind("<Return>", lambda event: jsoncheckinout(event, "inv", "out", invcheckoutentry.get(), invcheckoutownerentry.get()))
         invcheckoutentry.bind("<Return>", lambda event: invcheckoutownerentry.focus_set())
 
 
@@ -527,8 +542,8 @@ if True:
             print("ERROR: inv member not found",select)
 
     def invlistboxupdate():
-        global master
-        init = False
+        global master, init
+
         if init == False:  
             refreshjson()
             init = True
