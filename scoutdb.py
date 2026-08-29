@@ -16,6 +16,7 @@ if True:
     root.geometry("800x500")
     root.title("ScoutDB")
     root.configure(bg="#f0f0f0")
+    root.overrideredirect(True)
     directory = Path(__file__).resolve()
     init = False
 
@@ -380,6 +381,45 @@ if True: #WINDOWCONFIG
     
 #MAIN WINDOW ELEMENTS BELOW
 if True:
+
+    #CUSTOM TITLE BAR BELOW
+    if True:
+        def startmove(event):
+            root.x = event.x
+            root.y = event.y
+
+        def movewindow(event):
+            x = event.x_root - root.x
+            y = event.y_root - root.y
+            root.geometry(f"+{x}+{y}")
+
+        def minimizewindow():
+            root.overrideredirect(False)
+            root.iconify()
+
+        def restorewindow():
+            root.overrideredirect(True)
+            root.deiconify()
+
+        titlebar = Frame(root, bg="#B7B5B5", relief="raised", bd=0)
+
+        titlebar.bind("<Button-1>", startmove)
+        titlebar.bind("<B1-Motion>", movewindow)
+        titlelabel = Label(titlebar, text="ScoutDB", bg="#B7B5B5", fg="white")
+        titlelabel.pack(side="left", padx=10)
+        closebutton = Button(titlebar, text="X", command=root.destroy, bg="#B7B5B5", fg="white", relief="flat")
+        closebutton.pack(side="right", padx=5)
+
+        minimizebutton = Button(titlebar, text="_", command=minimizewindow, bg="#B7B5B5", fg="white", relief="flat")
+        minimizebutton.pack(side="right")
+        titlebar.grid(row=0, column=0, columnspan=12, sticky=NSEW)
+
+        root.bind("<Map>", lambda event: root.overrideredirect(True) if root.state() == "normal" else None)
+
+        
+
+
+
     invbutton = Button(root, text="Inventory", command=lambda:windowtoggle(True, "inv"))
     attbutton = Button(root, text="Attendance", command=lambda:windowtoggle(True, "att"))
     manbutton = Button(root, text="Management", command=lambda:windowtoggle(True, "man"))
@@ -391,10 +431,10 @@ if True:
     invbutton.grid(row=4, column=1,sticky=NSEW, columnspan=3)
     attbutton.grid(row=4, column=4, sticky=NSEW, columnspan=3)
     manbutton.grid(row=4, column=7, sticky=NSEW, columnspan=3)
-    welcomelabel.grid(row=0,column=0)
-    syncbutton.grid(row=0, column=11, sticky=NSEW)
-    secbutton.grid(row=0, column=10, sticky=NSEW)
-    savebutton.grid(row=0, column=9, sticky=NSEW)
+    welcomelabel.grid(row=1,column=0)
+    syncbutton.grid(row=1, column=11, sticky=NSEW)
+    secbutton.grid(row=1, column=10, sticky=NSEW)
+    savebutton.grid(row=1, column=9, sticky=NSEW)
 
 #INV WINDOW ELEMENTS BELOW
 if True:

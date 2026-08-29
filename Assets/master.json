@@ -60,11 +60,11 @@
                 ],
                 "tracked": 1,
                 "checkout": {
-                    "status": "in",
+                    "status": "out",
                     "lastcheckout": {
-                        "123456": 1785285031.6054764
+                        "123456": 1787369008.634372
                     },
-                    "lastexpected": "1787035205.7394025",
+                    "lastexpected": "1787900400.0",
                     "notes": "this is a test note."
                 }
             },
@@ -75,9 +75,9 @@
                 ],
                 "tracked": 1,
                 "checkout": {
-                    "status": "out",
+                    "status": "in",
                     "lastcheckout": {
-                        "123456": 1787351953.443637
+                        "123456": 1787368957.843512
                     },
                     "lastexpected": "1787295600.0",
                     "notes": "this is a test note."

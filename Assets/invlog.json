@@ -3,7 +3,7 @@
     "desc": "inventory based log, used for storing dates and times. names are not listed here for security purposes.",
     "members": {
         "123456": {
-            "current": "in",
+            "current": "out",
             "1787035205.7394025": {
                 "status": "out",
                 "lastexpected": "1787035206.7394025",
@@ -18,10 +18,16 @@
                 "status": "in",
                 "lastexpected": "1787035205.7394025",
                 "notes": "this is a test note."
+            },
+            "1787369008.63438": {
+                "status": "out",
+                "lastexpected": "1787900400.0",
+                "owner": "123456",
+                "notes": "this is a test note."
             }
         },
         "223456": {
-            "current": "out",
+            "current": "in",
             "1787035205.7394025": {
                 "status": "in",
                 "lastexpected": "1787035206.7394025",
@@ -36,6 +42,22 @@
                 "status": "out",
                 "lastexpected": "1787295600.0",
                 "owner": "123456",
+                "notes": "this is a test note."
+            },
+            "1787368907.284126": {
+                "status": "in",
+                "lastexpected": "1787295600.0",
+                "notes": "this is a test note."
+            },
+            "1787368957.84352": {
+                "status": "out",
+                "lastexpected": "1787295600.0",
+                "owner": "123456",
+                "notes": "this is a test note."
+            },
+            "1787368981.197363": {
+                "status": "in",
+                "lastexpected": "1787295600.0",
                 "notes": "this is a test note."
             }
         },
