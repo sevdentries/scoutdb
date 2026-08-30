@@ -202,6 +202,8 @@ def savejson():
     global master
     global attlog
     global invlog
+    timestamp  = time.time()
+    master["datemodified"] = attlog["datemodified"] = invlog["datemodified"] = timestamp
     masterdir = os.path.join(str(directory.parent),"Assets","master.json")
     attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
     invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
@@ -243,6 +245,10 @@ def windowtoggle(a, str):
         root.deiconify()
 
 def makescrollable(parent):
+    '''
+    makes a scrollable frame for use in the GUI. Returns the outer frame, inner frame, and canvas.
+    (outer, inner, canvas)
+    '''
     outer = Frame(parent)
     outer.columnconfigure(0, weight=1)
     outer.rowconfigure(0, weight=1)
@@ -624,13 +630,75 @@ if True:
     attbackbutton = Button(attwindow, text="Back", command=lambda:windowtoggle(False, "att"))
     atttab = ttk.Notebook(attwindow)
 
+    attinitializeframe, attinitializecontent, attinitializecanvas = makescrollable(atttab)
     attcheckinframe, attcheckincontent, attcheckincanvas = makescrollable(atttab)
     attcheckoutframe, attcheckoutcontent, attcheckoutcanvas = makescrollable(atttab)
     attissuesframe, attissuescontent, attissuescanvas = makescrollable(atttab)
+    attdetailsframe, attdetailscontent, attdetailscanvas = makescrollable(atttab)
 
+    atttab.add(attinitializeframe, text="Initialize")
+    '''
+    save these for later
     atttab.add(attcheckinframe, text="Check In")
     atttab.add(attcheckoutframe, text='Check Out')
     atttab.add(attissuesframe, text='Issues')
+    atttab.add(attdetailsframe, text='Details')
+    '''
+
+    #INITIALIZE FRAME ELEMENTS BELOW
+    if True:
+
+        def attinit(event):
+            global attlog
+            epochdate = attinitializedate.get_date()
+            epochdate = datetime.fromisoformat().timestamp()
+            if str(epochdate) in attlog:
+                print(True)
+            
+#########################################################################CONTINUE HERE
+
+        attinitializetitle = Label(attinitializecontent, text="Initialize Attendance", font=("Helvetica", 14, "bold", "italic"))
+        attinitializeintro = Label(attinitializecontent, text="In the \"Initialize\" page, you can initialize attendance for a specific date. This will create a new entry in the attendance log for that date, and will allow you to check in members for that date.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attinitializelabel1 = Label(attinitializecontent, text="Enter date:")
+        attinitializedate = DateEntry(
+            attinitializecontent,
+            width=18,
+            background="darkblue", 
+            foreground="white",
+            borderwidth=2,
+            date_pattern="yyyy-mm-dd"
+        )
+        attinitializebutton = Button(attinitializecontent, text="Initialize", command=attinit())
+
+        attinitializetitle.grid(row=0,column=0, sticky=NW)
+        attinitializeintro.grid(row=1,column=0, sticky=NW)
+        attinitializelabel1.grid(row=2,column=0, sticky=NW)
+        attinitializedate.grid(row=3,column=0, sticky=NW)
+        attinitializebutton.grid(row=4,column=0, sticky=NW)
+    #CHECK IN FRAME ELEMENTS BELOW
+    if True:
+        attcheckintitle = Label(attcheckincontent, text="Check In", font=("Helvetica", 14, "bold", "italic"))
+        attcheckinintro = Label(attcheckincontent, text="In the \"Check In\" page, you can also check in members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Make sure to select a date to initialize the check-in.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attcheckinlabel1 = Label(attcheckincontent, text="Enter date:")
+        attcheckindate = DateEntry(
+            attcheckincontent,
+            width=18,
+            background="darkblue", 
+            foreground="white",
+            borderwidth=2,
+            date_pattern="yyyy-mm-dd"
+        )        
+    #CHECK OUT FRAME ELEMENTS BELOW
+    if True:
+        pass
+
+    #ISSUES FRAME ELEMENTS BELOW
+    if True:
+        pass
+        
+    #DETAILS FRAME ELEMENTS BELOW
+    if True:
+        pass
 
     attlabel.grid(row=0,column=0)
     attbackbutton.grid(row=0,column=11, sticky=NSEW)
