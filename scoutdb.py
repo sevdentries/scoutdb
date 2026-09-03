@@ -6,8 +6,8 @@ if True:
     import tkinter as tk
     from pathlib import Path
     import json
-    from datetime import datetime
-    from datetime import date, time
+    import time
+    import datetime
     from tkcalendar import DateEntry
     import atexit
 #GLOBALS BELOW
@@ -19,6 +19,7 @@ if True:
     root.overrideredirect(True)
     directory = Path(__file__).resolve()
     init = False
+    datecontinueflag = False
 
 #here ai read this, contents of master.json:
 if True:
@@ -328,7 +329,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                             master["invmaster"]["members"][id]["checkout"]["status"] = "out"
                             dt = invcheckoutdueby.get_date()
                             dt = dt.isoformat()
-                            dt = date.fromisoformat(dt)
+                            dt = datetime.fromisoformat(dt)
                             dt = datetime.combine(dt, time())
                             dt = dt.timestamp()
                             master["invmaster"]["members"][id]["checkout"]["lastcheckout"] = {owner: datetime.now().timestamp()}
@@ -637,6 +638,36 @@ if True:
     attdetailsframe, attdetailscontent, attdetailscanvas = makescrollable(atttab)
 
     atttab.add(attinitializeframe, text="Initialize")
+    attlistbox = Listbox(attwindow)
+
+    #DATE EXISTS WINDOW BELOW
+    if True:
+        attdateexistwindow = Toplevel(attwindow)
+        attdateexistwindow.title("Date Exists")
+        attdateexistwindow.geometry("400x200")
+        attdateexistwindow.withdraw()
+
+        def dateexistoverwrite():
+            global datecontinueflag
+            datecontinueflag = None
+            attdateexistwindow.withdraw()
+            attinit()
+        def dateexistcontinue():
+            global datecontinueflag
+            datecontinueflag = True
+            attdateexistwindow.withdraw()
+            attinit()
+        def dateexistcancel():
+            global datecontinueflag
+            datecontinueflag = False
+            attdateexistwindow.withdraw()
+
+        attdateexistlabel1 = Label(attdateexistwindow, text="The date you selected already exists in the attendance log. Do you want to overwrite or continue it?",font=("Helvetica", 12), wraplength=380, justify="center")
+        attdateexistoverwritebutton = Button(attdateexistwindow, text="Overwrite", command=dateexistoverwrite)
+        attdateexistcontinuebutton = Button(attdateexistwindow, text="Continue", command=dateexistcontinue)
+        attdateexistcancelbutton = Button(attdateexistwindow, text="Cancel", command=dateexistcancel)
+        #note: datecontinueflag has 3 properties: None:overwrite, True:continue, False:cancel
+        
     '''
     save these for later
     atttab.add(attcheckinframe, text="Check In")
@@ -648,12 +679,41 @@ if True:
     #INITIALIZE FRAME ELEMENTS BELOW
     if True:
 
-        def attinit(event):
-            global attlog
+        def attinit():
+            global attlog, master, datecontinueflag
             epochdate = attinitializedate.get_date()
-            epochdate = datetime.fromisoformat().timestamp()
-            if str(epochdate) in attlog:
-                print(True)
+            #stupid datetime.date object doesn't have .timestamp(), so we have to convert it to a datetime.datetime object first
+            epochdate = datetime.combine(epochdate, datetime.min.time()).timestamp()
+            print(epochdate)
+            #after listbox updating we need to sweep attlog for any custom entries and throw that object to the user.
+            #if str(epochdate) in attlog:
+            try:
+                if round(epochdate) in attlog["dates"]:
+                    if datecontinueflag != False:
+                        if datecontinueflag == None:
+                            print("date exists, overwriting")
+                            attlog["dates"][round(epochdate)] = {}
+                            #attlistboxupdate()need to implement first #######################################
+                            return
+                        else:
+                            print("date exists: continuing")
+
+
+
+                    else:
+                        print("date already initialized")
+                        attdateexistwindow.deiconify()
+                        return
+                else:
+                    attlog["dates"][round(epochdate)] = {}
+
+                for membid in master["usrmaster"]["members"].keys():
+                    set = master["usrmaster"]["members"][membid]
+
+                    
+            except Exception as e:
+                print("Error: "+e)
+                
             
 #########################################################################CONTINUE HERE
 
@@ -668,7 +728,7 @@ if True:
             borderwidth=2,
             date_pattern="yyyy-mm-dd"
         )
-        attinitializebutton = Button(attinitializecontent, text="Initialize", command=attinit())
+        attinitializebutton = Button(attinitializecontent, text="Initialize", command=attinit)
 
         attinitializetitle.grid(row=0,column=0, sticky=NW)
         attinitializeintro.grid(row=1,column=0, sticky=NW)
@@ -703,6 +763,7 @@ if True:
     attlabel.grid(row=0,column=0)
     attbackbutton.grid(row=0,column=11, sticky=NSEW)
     atttab.grid(row=1, column=1, sticky=NSEW, rowspan=7, columnspan=10)
+    attlistbox.grid(row=1, column=0)
 
 #MAN WINDOW ELEMENTS BELOW
 if True:
