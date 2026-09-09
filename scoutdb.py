@@ -683,7 +683,7 @@ if True:
             global attlog, master, datecontinueflag
             epochdate = attinitializedate.get_date()
             #stupid datetime.date object doesn't have .timestamp(), so we have to convert it to a datetime.datetime object first
-            epochdate = datetime.combine(epochdate, datetime.min.time()).timestamp()
+            epochdate = datetime.datetime.combine(epochdate, datetime.datetime.min.time()).timestamp()
             print(epochdate)
             #after listbox updating we need to sweep attlog for any custom entries and throw that object to the user.
             #if str(epochdate) in attlog:
