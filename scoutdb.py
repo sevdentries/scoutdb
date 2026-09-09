@@ -19,7 +19,7 @@ if True:
     root.overrideredirect(True)
     directory = Path(__file__).resolve()
     init = False
-    datecontinueflag = False
+    datecontinueflag = "none"
 
 #here ai read this, contents of master.json:
 if True:
@@ -205,6 +205,9 @@ def savejson():
     global invlog
     timestamp  = time.time()
     master["datemodified"] = attlog["datemodified"] = invlog["datemodified"] = timestamp
+    master["usrmaster"]["count"] = len(master["usrmaster"]["members"])
+    master["invmaster"]["count"] = len(master["invmaster"]["members"])
+
     masterdir = os.path.join(str(directory.parent),"Assets","master.json")
     attdir = os.path.join(str(directory.parent),"Assets","attlog.json")
     invdir = os.path.join(str(directory.parent),"Assets","invlog.json")
@@ -220,7 +223,7 @@ def savejson():
     except Exception as e:
         print("ERROR:",e)
     finally:
-        print("success")
+        print("save success")
 
 def windowtoggle(a, str):
     if a == True:
@@ -649,23 +652,37 @@ if True:
 
         def dateexistoverwrite():
             global datecontinueflag
-            datecontinueflag = None
+            datecontinueflag = "over"
             attdateexistwindow.withdraw()
             attinit()
         def dateexistcontinue():
             global datecontinueflag
-            datecontinueflag = True
+            datecontinueflag = "cont"
             attdateexistwindow.withdraw()
             attinit()
         def dateexistcancel():
             global datecontinueflag
-            datecontinueflag = False
+            datecontinueflag = "none"
             attdateexistwindow.withdraw()
 
-        attdateexistlabel1 = Label(attdateexistwindow, text="The date you selected already exists in the attendance log. Do you want to overwrite or continue it?",font=("Helvetica", 12), wraplength=380, justify="center")
+        attdateexistlabel1 = Label(attdateexistwindow, text="The date you selected already exists in the attendance log. Do you want to overwrite or continue it?",font=("Helvetica", 12), wraplength=320, justify="center")
         attdateexistoverwritebutton = Button(attdateexistwindow, text="Overwrite", command=dateexistoverwrite)
         attdateexistcontinuebutton = Button(attdateexistwindow, text="Continue", command=dateexistcontinue)
         attdateexistcancelbutton = Button(attdateexistwindow, text="Cancel", command=dateexistcancel)
+
+        #GRIDS
+        if True:
+            attdateexistwindow.rowconfigure(0, weight=1)
+            attdateexistwindow.rowconfigure(1, weight=1)
+            attdateexistwindow.columnconfigure(0, weight=1)
+            attdateexistwindow.columnconfigure(1, weight=1)
+            attdateexistwindow.columnconfigure(2, weight=1)
+
+            attdateexistlabel1.grid(row=0, column=0, sticky=NSEW, columnspan=3)
+            attdateexistcontinuebutton.grid(row=1, column=0, sticky=NSEW)
+            attdateexistoverwritebutton.grid(row=1, column=1, sticky=NSEW)
+            attdateexistcancelbutton.grid(row=1, column=2, sticky=NSEW)
+
         #note: datecontinueflag has 3 properties: None:overwrite, True:continue, False:cancel
         
     '''
@@ -679,41 +696,82 @@ if True:
     #INITIALIZE FRAME ELEMENTS BELOW
     if True:
 
+        def initsuccess():
+            atttab.add(attcheckinframe, text="Check In")
+            atttab.add(attcheckoutframe, text='Check Out')
+            atttab.add(attissuesframe, text='Issues')
+            atttab.add(attdetailsframe, text='Details')
+
+        def attlistboxupdate(epoch):
+            global attlog, master
+            #epoch = '1789023600', example
+            if epoch in attlog["dates"]:
+                #okay here we go aghhhhh
+                confignum = 0
+                attlistbox.delete(0, END)
+                #ASSSEMBLEEE THE LISSSSTTT!!!!
+                for tag in master["usrmaster"]["tags"]:
+                    tagcompile = []
+                    attlistbox.insert(END, tag)
+                    attlistbox.itemconfig(confignum, bg="blue")
+                    confignum += 1
+                    for member in master["usrmaster"]["members"]:
+                        if tag in master["usrmaster"]["members"][member]["tags"]:
+                            tagcompile.append(master["usrmaster"]["members"][member]["lastname"]+", "+master["usrmaster"]["members"][member]["firstname"]+" ("+member+")")       
+                    tagcompile.sort()
+                    #now we have a sorted list, enter them in one by one while checking status
+                    for item in tagcompile:
+                        attlistbox.insert(END, item)
+                        #check status
+                        id = item.split("(")[1].split(")")[0]
+                        if id in attlog["dates"][epoch]:
+                            if attlog["dates"][epoch][id]["status"] == "in":
+                                attlistbox.itemconfig(confignum, bg="green")
+                            elif attlog["dates"][epoch][id]["status"] == "out":
+                                attlistbox.itemconfig(confignum, bg="red")
+                            else:
+                                print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"][\"status\"]!")
+                                attlistbox.itemconfig(confignum, bg="purple")
+                        else:
+                            #person is out and hasn't checked out yet
+                            attlistbox.itemconfig(confignum, bg="grey")
+                        confignum += 1
+            else:
+                print("no match in attlistboxupdate()!")
+            print("attlistboxupdate success")
         def attinit():
-            global attlog, master, datecontinueflag
+            global attlog, datecontinueflag
             epochdate = attinitializedate.get_date()
             #stupid datetime.date object doesn't have .timestamp(), so we have to convert it to a datetime.datetime object first
-            epochdate = datetime.datetime.combine(epochdate, datetime.datetime.min.time()).timestamp()
-            print(epochdate)
+            epochdate = str(round(datetime.datetime.combine(epochdate, datetime.datetime.min.time()).timestamp()))
+            print(epochdate, type(epochdate))
             #after listbox updating we need to sweep attlog for any custom entries and throw that object to the user.
             #if str(epochdate) in attlog:
             try:
-                if round(epochdate) in attlog["dates"]:
-                    if datecontinueflag != False:
-                        if datecontinueflag == None:
-                            print("date exists, overwriting")
-                            attlog["dates"][round(epochdate)] = {}
-                            #attlistboxupdate()need to implement first #######################################
-                            return
-                        else:
-                            print("date exists: continuing")
-
-
-
-                    else:
-                        print("date already initialized")
-                        attdateexistwindow.deiconify()
-                        return
+                if epochdate in attlog["dates"] and datecontinueflag == "none":
+                    #user hasn't acknowledged match
+                    attdateexistwindow.deiconify()
+                elif datecontinueflag != "none":
+                    #user is aware of match and has responded
+                    if datecontinueflag == "over":
+                        #create new entry
+                        attlog["dates"][epochdate] = {}
+                        attlistboxupdate(epochdate)
+                        if not datecontinueflag == "none":
+                            #its an overwrite, revert to none after operation
+                            datecontinueflag = "none"
+                    elif datecontinueflag == "cont":
+                        #continue original entry
+                        attlistboxupdate(epochdate)
+                    datecontinueflag = "none"
+                    initsuccess()
                 else:
-                    attlog["dates"][round(epochdate)] = {}
-
-                for membid in master["usrmaster"]["members"].keys():
-                    set = master["usrmaster"]["members"][membid]
-
-                    
+                    #create new entry
+                    attlog["dates"][epochdate] = {}
+                    initsuccess()      
             except Exception as e:
                 print("Error: "+e)
-                
+            
             
 #########################################################################CONTINUE HERE
 
