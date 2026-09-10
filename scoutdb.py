@@ -230,6 +230,7 @@ def windowtoggle(a, str):
         root.withdraw()
         if str == "att":
             attwindow.deiconify()
+            attlistboxupdate()
         elif str == "inv":
             invwindow.deiconify()
             invlistboxupdate()
@@ -702,7 +703,30 @@ if True:
             atttab.add(attissuesframe, text='Issues')
             atttab.add(attdetailsframe, text='Details')
 
-        def attlistboxupdate(epoch):
+        def attlistboxupdate():
+                #okay here we go aghhhhh
+            global attlog, master
+            confignum = 0
+            attlistbox.delete(0, END)
+            #ASSSEMBLEEE THE LISSSSTTT!!!!
+            for tag in master["usrmaster"]["tags"]:
+                tagcompile = []
+                attlistbox.insert(END, tag)
+                attlistbox.itemconfig(confignum, bg="blue")
+                confignum += 1
+                for member in master["usrmaster"]["members"]:
+                    if tag in master["usrmaster"]["members"][member]["tags"]:
+                        tagcompile.append(master["usrmaster"]["members"][member]["lastname"]+", "+master["usrmaster"]["members"][member]["firstname"]+" ("+member+")")       
+                tagcompile.sort()
+                #now we have a sorted list, enter them in one by one while checking status
+                for item in tagcompile:
+                    attlistbox.insert(END, item)
+                    attlistbox.itemconfig(confignum, bg="grey")
+                    confignum += 1
+            print("attlistboxmemberupdate success")
+            
+
+        def attlistboxmemberupdate(epoch):
             global attlog, master
             #epoch = '1789023600', example
             if epoch in attlog["dates"]:
@@ -737,8 +761,8 @@ if True:
                             attlistbox.itemconfig(confignum, bg="grey")
                         confignum += 1
             else:
-                print("no match in attlistboxupdate()!")
-            print("attlistboxupdate success")
+                print("no match in attlistboxmemberupdate()!")
+            print("attlistboxmemberupdate success")
         def attinit():
             global attlog, datecontinueflag
             epochdate = attinitializedate.get_date()
@@ -756,13 +780,13 @@ if True:
                     if datecontinueflag == "over":
                         #create new entry
                         attlog["dates"][epochdate] = {}
-                        attlistboxupdate(epochdate)
+                        attlistboxmemberupdate(epochdate)
                         if not datecontinueflag == "none":
                             #its an overwrite, revert to none after operation
                             datecontinueflag = "none"
                     elif datecontinueflag == "cont":
                         #continue original entry
-                        attlistboxupdate(epochdate)
+                        attlistboxmemberupdate(epochdate)
                     datecontinueflag = "none"
                     initsuccess()
                 else:
