@@ -10,6 +10,7 @@ if True:
     import datetime
     from tkcalendar import DateEntry
     import atexit
+    import math
 #GLOBALS BELOW
 if True:
     root = Tk()
@@ -20,6 +21,7 @@ if True:
     directory = Path(__file__).resolve()
     init = False
     datecontinueflag = "none"
+    epochframe = ""
 
 #here ai read this, contents of master.json:
 if True:
@@ -226,11 +228,15 @@ def savejson():
         print("save success")
 
 def windowtoggle(a, str):
+    global epochframe
     if a == True:
         root.withdraw()
         if str == "att":
             attwindow.deiconify()
-            attlistboxupdate()
+            if epochframe == "":
+                attlistboxupdate()
+            else:
+                attlistboxmemberupdate(epochframe)
         elif str == "inv":
             invwindow.deiconify()
             invlistboxupdate()
@@ -284,10 +290,106 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
     returns: True, (False, error)
     '''
     global master
-    global attlog
+    global attlog, epochframe
     global invlog
+
     if group == "att":
-        pass
+        if id in master["usrmaster"]["members"]:
+            if id in attlog["dates"][epochframe]:
+                #if id exists on that day, get the latest timestamp
+                greatcompile = []
+                for ts in attlog["dates"][epochframe][id]:
+                    greatcompile.append(int(ts))
+                greatcompile.sort(reverse=True)
+                current = str(greatcompile[0])
+                current = attlog["dates"][epochframe][id][current]["status"]
+            elif not id in attlog["dates"][epochframe] and inout == "in":
+                #if id doesn't exist in day but inout is in, we must be checking in new user
+                current = "out"
+                attlog["dates"][epochframe][id] = {}
+            elif not id in attlog["dates"][epochframe] and inout == "out":
+                #if id doesn't exist in day but inout is out, we must be checking out new user, which is an error
+                print("Error: Member was never checked in today!"+inout)
+                attcheckoutstatus.config(text="Status: Error, Member was never checked in today")
+                attcheckoutentry.delete(0, END)
+                return False, "Error: Member was never checked in today!"+inout
+
+            else:
+                print("Error: Unexpected value inout: "+inout)
+                attcheckoutentry.delete(0, END)
+                return False, "Error: Unexpected value inout: "+inout
+
+            
+            if inout == "in":
+                #checking person in
+                if current == "out":
+                    newtime = str(math.floor(time.time()))
+                    note = attcheckinnotes.get()
+                    attlog["dates"][epochframe][id][newtime] = {
+                        "status":"in",
+                        "notes":note
+                    }
+                    humantime = datetime.datetime.fromtimestamp(int(newtime))
+                    humantime = humantime.isoformat()
+                    humantime = humantime.split(".")[0]
+                    humantime = humantime.replace("T",", ")
+                    attcheckinstatus.config(text="Status: Checked in successfully at "+humantime+".", fg="green")
+                    attlistboxmemberupdate(epochframe)
+                    attcheckinentry.delete(0, END)
+                    return True
+                elif current == "in":
+                    print("Error: User is already checked in")
+                    attcheckinstatus.config(text="Error: User is already checked in",fg="red")
+                    attcheckinentry.delete(0, END)
+                    return False, "Error: User is already checked in"
+                else:
+                    print("Error: Unexpected value inout: "+inout)
+                    attcheckinentry.delete(0, END)
+                    return False, "Error: Unexpected value inout: "+inout
+            elif inout == "out":
+                #signing person out
+                if current == "in":
+                    if id in attlog["dates"][epochframe]:
+                        newtime = str(math.floor(time.time()))
+                        note = attcheckoutnotes.get()
+                        attlog["dates"][epochframe][id][newtime] = {
+                            "status":"out",
+                            "notes":note
+                        }
+                        humantime = datetime.datetime.fromtimestamp(int(newtime))
+                        humantime = humantime.isoformat()
+                        humantime = humantime.split(".")[0]
+                        humantime = humantime.replace("T",", ")
+                        attcheckoutstatus.config(text="Status: Signed out successfully at "+humantime+".", fg="green")
+                        attlistboxmemberupdate(epochframe)
+                        attcheckoutentry.delete(0, END)
+                        return True
+                    else:
+                        print("Error: Member was never checked in today!"+inout)
+                        attcheckoutstatus.config(text="Status: Error, Member was never checked in today")
+                        attcheckoutentry.delete(0, END)
+                        return False, "Error: Unexpected value inout: "+inout
+                elif current == "out":
+                    print("Error: User is already checked out")
+                    attcheckoutstatus.config(text="Status: Error, User is already signed out",fg="red")
+                    attcheckoutentry.delete(0, END)
+                    return False, "Error: User is already checked out"
+                else:
+                    print("Error: Unexpected value inout: "+inout)
+                    attcheckoutentry.delete(0, END)
+                    return False, "Error: Unexpected value inout: "+inout
+            else:
+                print("Error: Unexpected value inout: "+inout)
+                attcheckoutentry.delete(0, END)
+                return False, "Error: Unexpected value inout: "+inout
+            
+        else:
+            print("Error: member id not found")
+            if inout == "out":
+                attcheckoutstatus.config(text="Error: member id not found",fg="red")
+            else:
+                attcheckinstatus.config(text="Error: member id not found",fg="red")
+            return False, "Error: member id not found"
     elif group == "inv":
         if inout == "in":
             #checking items in
@@ -367,6 +469,9 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                 invcheckoutstatus.config(text="Status: "+e, fg="red")
                 invcheckoutentry.delete(0, END)
                 return False, e
+        else:
+            print("Error: Unexpected value inout: "+inout)
+            return False, "Error: Unexpected value inout: "+inout
         invlistboxupdate()
         
 
@@ -582,7 +687,7 @@ if True:
             invdetailsstatus.config(text="Status: "+checkoutview["status"])
             builduser = next(iter(checkoutview["lastcheckout"])) #"123456"
             buildmember = master["usrmaster"]["members"][builduser]["firstname"]+" "+master["usrmaster"]["members"][builduser]["lastname"] 
-            buildtime = datetime.fromtimestamp(checkoutview["lastcheckout"][builduser]).isoformat()
+            buildtime = datetime.datetime.fromtimestamp(checkoutview["lastcheckout"][builduser]).isoformat()
             buildtime = buildtime.split(".")[0]
             buildtime = buildtime.replace("T",", ")
             invdetailslastcheckout.config(text="Last Checkout: "+buildtime+", to "+buildmember)
@@ -634,6 +739,7 @@ if True:
     attlabel = Label(attwindow, text="Attendance")
     attbackbutton = Button(attwindow, text="Back", command=lambda:windowtoggle(False, "att"))
     atttab = ttk.Notebook(attwindow)
+    
 
     attinitializeframe, attinitializecontent, attinitializecanvas = makescrollable(atttab)
     attcheckinframe, attcheckincontent, attcheckincanvas = makescrollable(atttab)
@@ -686,13 +792,6 @@ if True:
 
         #note: datecontinueflag has 3 properties: None:overwrite, True:continue, False:cancel
         
-    '''
-    save these for later
-    atttab.add(attcheckinframe, text="Check In")
-    atttab.add(attcheckoutframe, text='Check Out')
-    atttab.add(attissuesframe, text='Issues')
-    atttab.add(attdetailsframe, text='Details')
-    '''
 
     #INITIALIZE FRAME ELEMENTS BELOW
     if True:
@@ -702,10 +801,21 @@ if True:
             atttab.add(attcheckoutframe, text='Check Out')
             atttab.add(attissuesframe, text='Issues')
             atttab.add(attdetailsframe, text='Details')
+            atttab.forget(attinitializeframe)
+            attbackoutbutton.grid(row=0, column=10,sticky=NSEW)
 
+        def backout():
+            atttab.forget(attcheckinframe)
+            atttab.forget(attcheckoutframe)
+            atttab.forget(attissuesframe)
+            atttab.forget(attdetailsframe)
+            atttab.add(attinitializeframe, text="Initialize")
+            attbackoutbutton.grid_forget()
+            attlistboxupdate()
+        attbackoutbutton = Button(attwindow, text="Close date", command=backout)
         def attlistboxupdate():
                 #okay here we go aghhhhh
-            global attlog, master
+            global master
             confignum = 0
             attlistbox.delete(0, END)
             #ASSSEMBLEEE THE LISSSSTTT!!!!
@@ -723,16 +833,17 @@ if True:
                     attlistbox.insert(END, item)
                     attlistbox.itemconfig(confignum, bg="grey")
                     confignum += 1
-            print("attlistboxmemberupdate success")
+            print("attlistboxupdate success")
             
 
         def attlistboxmemberupdate(epoch):
-            global attlog, master
+            global attlog, master, epochframe
             #epoch = '1789023600', example
             if epoch in attlog["dates"]:
                 #okay here we go aghhhhh
                 confignum = 0
                 attlistbox.delete(0, END)
+                epochframe = epoch
                 #ASSSEMBLEEE THE LISSSSTTT!!!!
                 for tag in master["usrmaster"]["tags"]:
                     tagcompile = []
@@ -748,13 +859,22 @@ if True:
                         attlistbox.insert(END, item)
                         #check status
                         id = item.split("(")[1].split(")")[0]
+                        
                         if id in attlog["dates"][epoch]:
-                            if attlog["dates"][epoch][id]["status"] == "in":
+                            #new function now needs highest timestamp in day
+                            greatcompile = []
+                            for timestamp in attlog["dates"][epoch][id]:
+                                greatcompile.append(int(timestamp))
+                            greatcompile.sort(reverse=True)
+                            mostrecentepoch = str(greatcompile[0])
+                            print(mostrecentepoch)
+
+                            if attlog["dates"][epoch][id][mostrecentepoch]["status"] == "in":
                                 attlistbox.itemconfig(confignum, bg="green")
-                            elif attlog["dates"][epoch][id]["status"] == "out":
+                            elif attlog["dates"][epoch][id][mostrecentepoch]["status"] == "out":
                                 attlistbox.itemconfig(confignum, bg="red")
                             else:
-                                print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"][\"status\"]!")
+                                print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"]["+mostrecentepoch+"][\"status\"]!")
                                 attlistbox.itemconfig(confignum, bg="purple")
                         else:
                             #person is out and hasn't checked out yet
@@ -762,9 +882,9 @@ if True:
                         confignum += 1
             else:
                 print("no match in attlistboxmemberupdate()!")
-            print("attlistboxmemberupdate success")
+            print("attlistboxmemberupdate finished")
         def attinit():
-            global attlog, datecontinueflag
+            global attlog, datecontinueflag, epochframe
             epochdate = attinitializedate.get_date()
             #stupid datetime.date object doesn't have .timestamp(), so we have to convert it to a datetime.datetime object first
             epochdate = str(round(datetime.datetime.combine(epochdate, datetime.datetime.min.time()).timestamp()))
@@ -792,6 +912,7 @@ if True:
                 else:
                     #create new entry
                     attlog["dates"][epochdate] = {}
+                    epochframe = epochdate
                     initsuccess()      
             except Exception as e:
                 print("Error: "+e)
@@ -820,19 +941,42 @@ if True:
     #CHECK IN FRAME ELEMENTS BELOW
     if True:
         attcheckintitle = Label(attcheckincontent, text="Check In", font=("Helvetica", 14, "bold", "italic"))
-        attcheckinintro = Label(attcheckincontent, text="In the \"Check In\" page, you can also check in members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Make sure to select a date to initialize the check-in.", font=("Helvetica", 12), wraplength=430, justify="left" )
-        attcheckinlabel1 = Label(attcheckincontent, text="Enter date:")
-        attcheckindate = DateEntry(
-            attcheckincontent,
-            width=18,
-            background="darkblue", 
-            foreground="white",
-            borderwidth=2,
-            date_pattern="yyyy-mm-dd"
-        )        
+        attcheckinintro = Label(attcheckincontent, text="In the \"Check In\" page, you can also check in members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attcheckinlabel1 = Label(attcheckincontent, text="Enter member ID:")
+        attcheckinentry = Entry(attcheckincontent)
+        attcheckinlabel2 = Label(attcheckincontent, text="Notes:")
+        attcheckinnotes = Entry(attcheckincontent)
+        attcheckinstatus = Label(attcheckincontent, text="Status:")
+
+        attcheckintitle.grid(row=0,column=0, sticky=NW)
+        attcheckinintro.grid(row=1,column=0, sticky=NW)
+        attcheckinlabel1.grid(row=2,column=0, sticky=NW)
+        attcheckinentry.grid(row=3,column=0, sticky=NW)
+        attcheckinlabel2.grid(row=4,column=0, sticky=NW)
+        attcheckinnotes.grid(row=5,column=0, sticky=NW)
+        attcheckinstatus.grid(row=6,column=0, sticky=NW)
+
+        attcheckinentry.bind("<Return>", lambda event: jsoncheckinout(event, "att", "in", attcheckinentry.get()))
+
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
-        pass
+        attcheckouttitle = Label(attcheckoutcontent, text="Check Out", font=("Helvetica", 14, "bold", "italic"))
+        attcheckoutintro = Label(attcheckoutcontent, text="In the \"Check Out\" page, you can sign out members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attcheckoutlabel1 = Label(attcheckoutcontent, text="Enter member ID:")
+        attcheckoutentry = Entry(attcheckoutcontent)
+        attcheckoutlabel2 = Label(attcheckoutcontent, text="Notes:")
+        attcheckoutnotes = Entry(attcheckoutcontent)
+        attcheckoutstatus = Label(attcheckoutcontent, text="Status:")
+
+        attcheckouttitle.grid(row=0,column=0, sticky=NW)
+        attcheckoutintro.grid(row=1,column=0, sticky=NW)
+        attcheckoutlabel1.grid(row=2,column=0, sticky=NW)
+        attcheckoutentry.grid(row=3,column=0, sticky=NW)
+        attcheckoutlabel2.grid(row=4,column=0, sticky=NW)
+        attcheckoutnotes.grid(row=5,column=0, sticky=NW)
+        attcheckoutstatus.grid(row=6,column=0, sticky=NW)
+
+        attcheckoutentry.bind("<Return>", lambda event: jsoncheckinout(event, "att", "out", attcheckoutentry.get()))
 
     #ISSUES FRAME ELEMENTS BELOW
     if True:
@@ -845,7 +989,7 @@ if True:
     attlabel.grid(row=0,column=0)
     attbackbutton.grid(row=0,column=11, sticky=NSEW)
     atttab.grid(row=1, column=1, sticky=NSEW, rowspan=7, columnspan=10)
-    attlistbox.grid(row=1, column=0)
+    attlistbox.grid(row=1, column=0, rowspan=8, sticky=NSEW)
 
 #MAN WINDOW ELEMENTS BELOW
 if True:
