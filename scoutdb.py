@@ -748,6 +748,7 @@ if True:
     attdetailsframe, attdetailscontent, attdetailscanvas = makescrollable(atttab)
 
     atttab.add(attinitializeframe, text="Initialize")
+    atttab.add(attdetailsframe, text='Details')
     attlistbox = Listbox(attwindow)
 
     #DATE EXISTS WINDOW BELOW
@@ -800,17 +801,21 @@ if True:
             atttab.add(attcheckinframe, text="Check In")
             atttab.add(attcheckoutframe, text='Check Out')
             atttab.add(attissuesframe, text='Issues')
-            atttab.add(attdetailsframe, text='Details')
             atttab.forget(attinitializeframe)
+            atttab.forget(attdetailsframe)
+            atttab.add(attdetailsframe, text='Details')
             attbackoutbutton.grid(row=0, column=10,sticky=NSEW)
 
         def backout():
+            global epochframe
             atttab.forget(attcheckinframe)
             atttab.forget(attcheckoutframe)
             atttab.forget(attissuesframe)
             atttab.forget(attdetailsframe)
             atttab.add(attinitializeframe, text="Initialize")
+            atttab.add(attdetailsframe, text='Details')
             attbackoutbutton.grid_forget()
+            epochframe = ""
             attlistboxupdate()
         attbackoutbutton = Button(attwindow, text="Close date", command=backout)
         def attlistboxupdate():
@@ -957,7 +962,6 @@ if True:
         attcheckinstatus.grid(row=6,column=0, sticky=NW)
 
         attcheckinentry.bind("<Return>", lambda event: jsoncheckinout(event, "att", "in", attcheckinentry.get()))
-
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
         attcheckouttitle = Label(attcheckoutcontent, text="Check Out", font=("Helvetica", 14, "bold", "italic"))
@@ -977,14 +981,114 @@ if True:
         attcheckoutstatus.grid(row=6,column=0, sticky=NW)
 
         attcheckoutentry.bind("<Return>", lambda event: jsoncheckinout(event, "att", "out", attcheckoutentry.get()))
-
     #ISSUES FRAME ELEMENTS BELOW
     if True:
-        pass
-        
+        pass   
     #DETAILS FRAME ELEMENTS BELOW
     if True:
-        pass
+        attdetailstitle = Label(attdetailscontent, text="Details", font=("Helvetica", 14, "bold", "italic"))
+        attdetailsintro = Label(attdetailscontent, text="Welcome to the details page, here you can examine attendance records in greater detail, as well as viewing timestamps such as checkins and checkouts. If you wish to modify records, do so in the \"Management\" section.", font=("Helvetica", 12), wraplength=450, justify="left")
+        attdetailsname = Label(attdetailscontent, text="Name: ", font=("Helvetica", 12))
+        attdetailsbirthdate = Label(attdetailscontent, text="DOB: ", font=("Helvetica", 12))
+        attdetailstele = Label(attdetailscontent, text="Telephone/Guardian #: ", font=("Helvetica", 12))
+        attdetailstag = Label(attdetailscontent, text="Tags: ", font=("Helvetica", 12))
+        attdetailsstatus = Label(attdetailscontent, text="Status: ", font=("Helvetica", 12))
+        attdetailstracked = Label(attdetailscontent, text="Tracked: ", font=("Helvetica", 12))
+        attdetailslastcheckin = Label(attdetailscontent, text="Last Check In: ", font=("Helvetica", 12))
+        attdetailslastcheckout = Label(attdetailscontent, text="Last Check Out: ", font=("Helvetica", 12))
+        attdetailsnotes = Label(attdetailscontent, text="Notes: ", font=("Helvetica", 12))
+
+        def attlistboxviewdetails(event):
+            global master, attlog, epochframe
+            compsel = attlistbox.curselection()
+            select = attlistbox.get(compsel[0])
+            try:
+                id = select.split("(")[1].split(")")[0]
+                if id in master["usrmaster"]["members"]:
+                    namecompile = master["usrmaster"]["members"][id]["firstname"]+" "+master["usrmaster"]["members"][id]["lastname"]
+                    attdetailsname.config(text="Name: "+namecompile)
+                    attdetailsbirthdate.config(text="DOB: "+master["usrmaster"]["members"][id]["birthdate"])
+                    attdetailstele.config(text="Telephone/Guardian #: "+master["usrmaster"]["members"][id]["telephone"])
+                    tagflag = False
+                    for tag in master["usrmaster"]["members"][id]["tags"]:
+                        if tagflag == False:
+                            tagbuild = "Tags: "+tag
+                            tagflag = True
+                        else:
+                            tagbuild += ", "+tag
+                    attdetailstag.config(text=tagbuild)
+                    incompile = []
+                    outcompile = []
+                    for epoch in attlog["dates"]:
+                        if id in attlog["dates"][epoch]:
+                            greatcompile = []
+                            for timestamp in attlog["dates"][epoch][id]:
+                                greatcompile.append(int(timestamp))
+                            greatcompile.sort(reverse=True)
+                            mostrecentepoch = str(greatcompile[0])
+                            print(mostrecentepoch)
+
+                            if attlog["dates"][epoch][id][mostrecentepoch]["status"] == "in":
+                                attdetailsstatus.config(text="Status: In", fg="green")
+                            elif attlog["dates"][epoch][id][mostrecentepoch]["status"] == "out":
+                                attdetailsstatus.config(text="Status: Out", fg="red")
+                            else:
+                                print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"]["+mostrecentepoch+"][\"status\"]!")
+                                attdetailsstatus.config(text="Status: Unknown")
+
+                            for date in attlog["dates"]:
+                                if id in attlog["dates"][date]:
+                                    for epoch2 in attlog["dates"][date][id]:
+                                        if attlog["dates"][date][id][epoch2]["status"] == "in":
+                                            incompile.append(epoch2)
+                                        else:
+                                            outcompile.append(epoch2)
+
+                            outcompile.sort(reverse=True, key=int)
+                            incompile.sort(reverse=True, key=int)
+                            if len(incompile) == 0:
+                                attdetailslastcheckin.config(text="Last Check In: N/A")
+                            else:
+                                lastin = incompile[0]
+                                buildin = datetime.datetime.fromtimestamp(int(lastin)).isoformat()
+                                buildin = buildin.split(".")[0]
+                                buildin = buildin.replace("T",", ")
+                                attdetailslastcheckin.config(text="Last Check In: "+buildin)
+                            if len(outcompile) == 0:
+                                attdetailslastcheckout.config(text="Last Check Out: N/A")
+                            else:
+                                lastout = outcompile[0]
+                                buildout = datetime.datetime.fromtimestamp(int(lastout)).isoformat()
+                                buildout = buildout.split(".")[0]
+                                buildout = buildout.replace("T",", ")
+                                attdetailslastcheckout.config(text="Last Check Out: "+buildout)
+                        else:
+                            attdetailsstatus.config(text="Status: Out (no records found)",fg="red")
+                            attdetailslastcheckin.config(text="Last Check In: N/A")
+                            attdetailslastcheckout.config(text="Last Check Out: N/A")
+                    atttab.select(attdetailsframe)
+                    print("attlistboxviewdetails success")
+            except IndexError:
+                print("Error: No ID found in selection, did you select the category?")
+                return False
+                
+            
+            
+            
+        attdetailstitle.grid(row=0,column=0, sticky=NW)
+        attdetailsintro.grid(row=1,column=0, sticky=NW)
+        attdetailsname.grid(row=2,column=0, sticky=NW)
+        attdetailsbirthdate.grid(row=3,column=0, sticky=NW)
+        attdetailstele.grid(row=4,column=0, sticky=NW)
+        attdetailstag.grid(row=5,column=0, sticky=NW)
+        attdetailsstatus.grid(row=6,column=0, sticky=NW)
+        attdetailstracked.grid(row=7,column=0, sticky=NW)
+        attdetailslastcheckin.grid(row=8,column=0, sticky=NW)
+        attdetailslastcheckout.grid(row=9,column=0, sticky=NW)
+        attdetailsnotes.grid(row=10,column=0, sticky=NW)
+        attlistbox.bind("<Double-Button-1>", attlistboxviewdetails)
+
+    
 
     attlabel.grid(row=0,column=0)
     attbackbutton.grid(row=0,column=11, sticky=NSEW)
