@@ -459,7 +459,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                 else:
                     master["invmaster"]["members"][id]["checkout"]["status"] = "in"
                     invlog["members"][id]["current"] = "in"
-                    invlog["members"][id][str(datetime.now().timestamp())] = {
+                    invlog["members"][id][str(datetime.datetime.now().timestamp())] = {
                         "status":"in",
                         "lastexpected": master["invmaster"]["members"][id]["checkout"]["lastexpected"],
                         "notes": master["invmaster"]["members"][id]["checkout"]["notes"]
