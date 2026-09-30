@@ -334,6 +334,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                     humantime = humantime.split(".")[0]
                     humantime = humantime.replace("T",", ")
                     attcheckinstatus.config(text="Status: Checked in successfully at "+humantime+".", fg="green")
+                    root.after(3000, lambda: attcheckinstatus.config(text="Status: ", fg="black"))
                     attlistboxmemberupdate(epochframe)
                     attcheckinentry.delete(0, END)
                     return True
@@ -361,6 +362,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         humantime = humantime.split(".")[0]
                         humantime = humantime.replace("T",", ")
                         attcheckoutstatus.config(text="Status: Signed out successfully at "+humantime+".", fg="green")
+                        root.after(3000, lambda: attcheckoutstatus.config(text="Status: ", fg="black"))
                         attlistboxmemberupdate(epochframe)
                         attcheckoutentry.delete(0, END)
                         return True
@@ -539,9 +541,9 @@ if True:
     invbutton = Button(root, text="Inventory", command=lambda:windowtoggle(True, "inv"))
     attbutton = Button(root, text="Attendance", command=lambda:windowtoggle(True, "att"))
     manbutton = Button(root, text="Management", command=lambda:windowtoggle(True, "man"))
-    welcomelabel = Label(root, text="ScoutDB", font=("Helvetica", 20, "bold", "italic"))
+    welcomelabel = Label(root, text="Scout32", font=("Helvetica", 20, "bold", "italic"))
     syncbutton = Button(root, text="Sync...")
-    secbutton = Button(root, text="Security")
+    #secbutton = Button(root, text="Security")
     savebutton = Button(root, text="Save", command=savejson)
 
     invbutton.grid(row=4, column=1,sticky=NSEW, columnspan=3)
@@ -549,8 +551,8 @@ if True:
     manbutton.grid(row=4, column=7, sticky=NSEW, columnspan=3)
     welcomelabel.grid(row=1,column=0)
     syncbutton.grid(row=1, column=11, sticky=NSEW)
-    secbutton.grid(row=1, column=10, sticky=NSEW)
-    savebutton.grid(row=1, column=9, sticky=NSEW)
+    #secbutton.grid(row=1, column=10, sticky=NSEW)
+    savebutton.grid(row=1, column=10, sticky=NSEW)
 
 #INV WINDOW ELEMENTS BELOW
 if True:
@@ -913,6 +915,8 @@ if True:
                         #continue original entry
                         attlistboxmemberupdate(epochdate)
                     datecontinueflag = "none"
+                    attcheckintitle.config(text="Check In - "+datetime.datetime.fromtimestamp(int(epochdate)).isoformat().split("T")[0])
+                    attcheckouttitle.config(text="Check Out - "+datetime.datetime.fromtimestamp(int(epochdate)).isoformat().split("T")[0])
                     initsuccess()
                 else:
                     #create new entry
