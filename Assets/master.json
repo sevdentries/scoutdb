@@ -1,7 +1,7 @@
 {
     "name": "MASTERJSON",
     "desc": "JSON handling for inventory and logging, welcome back kanye west.",
-    "datemodified": 1789060324.3781228,
+    "datemodified": 1790811494.3798215,
     "usrmaster": {
         "tags": [
             "Beaver",
@@ -13,53 +13,65 @@
         ],
         "count": 6,
         "members": {
-                "123456":{
-                "firstname":"Bob",
-                "lastname":"Dylan",
-                "telephone":"7789564705",
-                "birthdate":"December 12, 2009",
-                "tags":["Beaver"],
-                "notes":"this is a test note."
+            "123456": {
+                "firstname": "Bob",
+                "lastname": "Dylan",
+                "telephone": "7789564705",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Beaver"
+                ],
+                "notes": "this is a test note."
             },
-            "223456":{
-                "firstname":"Sunny",
-                "lastname":"Ron",
-                "telephone":"1232233234",
-                "birthdate":"December 12, 2009",
-                "tags":["Cub"],
-                "notes":"this is a test note."
+            "223456": {
+                "firstname": "Sunny",
+                "lastname": "Ron",
+                "telephone": "1232233234",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Cub"
+                ],
+                "notes": "this is a test note."
             },
-            "323456":{
-                "firstname":"Steve",
-                "lastname":"Jobs",
-                "telephone":"1232233234",
-                "birthdate":"December 12, 2009",
-                "tags":["Scout"],
-                "notes":"this is a test note."
+            "323456": {
+                "firstname": "Steve",
+                "lastname": "Jobs",
+                "telephone": "1232233234",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Scout"
+                ],
+                "notes": "this is a test note."
             },
-            "423456":{
-                "firstname":"Steve",
-                "lastname":"Jobs2",
-                "telephone":"1232233234",
-                "birthdate":"December 12, 2009",
-                "tags":["Venturer"],
-                "notes":"this is a test note."
+            "423456": {
+                "firstname": "Steve",
+                "lastname": "Jobs2",
+                "telephone": "1232233234",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Venturer"
+                ],
+                "notes": "this is a test note."
             },
-            "523456":{
-                "firstname":"Steve",
-                "lastname":"Jobs3",
-                "telephone":"1232233234",
-                "birthdate":"December 12, 2009",
-                "tags":["Rover"],
-                "notes":"this is a test note."
+            "523456": {
+                "firstname": "Steve",
+                "lastname": "Jobs3",
+                "telephone": "1232233234",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Rover"
+                ],
+                "notes": "this is a test note."
             },
-            "623456":{
-                "firstname":"Steve",
-                "lastname":"Jobs3",
-                "telephone":"1232233234",
-                "birthdate":"December 12, 2009",
-                "tags":["Parent"],
-                "notes":"this is a test note."
+            "623456": {
+                "firstname": "Steve",
+                "lastname": "Jobs3",
+                "telephone": "1232233234",
+                "birthdate": "December 12, 2009",
+                "tags": [
+                    "Parent"
+                ],
+                "notes": "this is a test note."
             }
         }
     },

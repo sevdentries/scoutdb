@@ -14,9 +14,59 @@ if True:
 #GLOBALS BELOW
 if True:
     root = Tk()
-    root.geometry("800x500")
+    root.geometry("960x600")
+    root.minsize(800, 500)
     root.title("ScoutDB")
-    root.configure(bg="#f0f0f0")
+    palette = {
+        "background": "#111820",
+        "surface": "#19232d",
+        "surface_alt": "#202d38",
+        "border": "#2e3d49",
+        "text": "#e6edf2",
+        "muted": "#91a2ae",
+        "accent": "#42c6a5",
+        "accent_hover": "#32ad90",
+        "danger": "#d95c63",
+    }
+    root.configure(bg=palette["background"])
+    root.option_add("*Font", "{Segoe UI} 10")
+    root.option_add("*Background", palette["surface"])
+    root.option_add("*Foreground", palette["text"])
+    root.option_add("*Button.Relief", "flat")
+    root.option_add("*Button.BorderWidth", 0)
+    root.option_add("*Button.ActiveBackground", palette["border"])
+    root.option_add("*Button.ActiveForeground", palette["text"])
+    root.option_add("*Entry.Background", palette["surface_alt"])
+    root.option_add("*Entry.Foreground", palette["text"])
+    root.option_add("*Entry.InsertBackground", palette["text"])
+    root.option_add("*Entry.Relief", "flat")
+    root.option_add("*Entry.BorderWidth", 1)
+    root.option_add("*Entry.HighlightBackground", palette["border"])
+    root.option_add("*Entry.HighlightColor", palette["accent"])
+    root.option_add("*Listbox.Background", palette["surface_alt"])
+    root.option_add("*Listbox.Foreground", palette["text"])
+    root.option_add("*Listbox.SelectBackground", palette["accent"])
+    root.option_add("*Listbox.SelectForeground", palette["background"])
+    root.option_add("*Listbox.Relief", "flat")
+    root.option_add("*Listbox.BorderWidth", 1)
+    root.option_add("*Listbox.HighlightBackground", palette["border"])
+    root.option_add("*Listbox.HighlightColor", palette["accent"])
+    root.option_add("*Listbox.Activestyle", "none")
+    style = ttk.Style(root)
+    style.theme_use("clam")
+    style.configure("TNotebook", background=palette["background"], borderwidth=0)
+    style.configure("TNotebook.Tab", background=palette["surface_alt"], foreground=palette["muted"], font=("Segoe UI", 10, "bold"), padding=(16, 9), borderwidth=0)
+    style.map("TNotebook.Tab", background=[("selected", palette["accent"]), ("active", palette["border"])], foreground=[("selected", palette["background"]), ("active", palette["text"])])
+    style.configure("TEntry", fieldbackground=palette["surface_alt"], foreground=palette["text"], bordercolor=palette["border"], padding=7)
+    style.map("TEntry", bordercolor=[("focus", palette["accent"])])
+    style.configure("TCombobox", fieldbackground=palette["surface_alt"], background=palette["surface_alt"], foreground=palette["text"], arrowcolor=palette["text"], bordercolor=palette["border"], padding=6)
+    style.map("TCombobox", fieldbackground=[("readonly", palette["surface_alt"])], foreground=[("readonly", palette["text"])])
+    style.configure("TButton", background=palette["surface_alt"], foreground=palette["text"], font=("Segoe UI", 10), padding=(12, 8), borderwidth=0)
+    style.map("TButton", background=[("active", palette["border"]), ("pressed", palette["accent"])], foreground=[("pressed", palette["background"])])
+    style.configure("TScrollbar", background=palette["surface_alt"], troughcolor=palette["background"], bordercolor=palette["background"], arrowcolor=palette["muted"], relief="flat")
+    style.configure("Treeview", background=palette["surface_alt"], fieldbackground=palette["surface_alt"], foreground=palette["text"], rowheight=30, borderwidth=0)
+    style.configure("Treeview.Heading", background=palette["surface"], foreground=palette["muted"], padding=8, borderwidth=0)
+    style.map("Treeview", background=[("selected", palette["accent"])], foreground=[("selected", palette["background"])])
     root.overrideredirect(True)
     directory = Path(__file__).resolve()
     init = False
@@ -157,18 +207,22 @@ if True:
     invwindow = Toplevel(root)
     invwindow.title("Inventory")
     invwindow.geometry("800x500")
+    invwindow.configure(bg=palette["background"])
 
     attwindow = Toplevel(root)
     attwindow.title("Attendance")
     attwindow.geometry("800x500")
+    attwindow.configure(bg=palette["background"])
 
     manwindow = Toplevel(root)
     manwindow.title("Management")
     manwindow.geometry("800x500")
+    manwindow.configure(bg=palette["background"])
 
     secwindow = Toplevel(root)
     secwindow.title("Security")
     secwindow.geometry("500x300")
+    secwindow.configure(bg=palette["background"])
 
     invwindow.withdraw()
     attwindow.withdraw()
@@ -260,15 +314,15 @@ def makescrollable(parent):
     makes a scrollable frame for use in the GUI. Returns the outer frame, inner frame, and canvas.
     (outer, inner, canvas)
     '''
-    outer = Frame(parent)
+    outer = Frame(parent, bg=palette["background"])
     outer.columnconfigure(0, weight=1)
     outer.rowconfigure(0, weight=1)
-    canvas = Canvas(outer)
-    scrollbar = Scrollbar(outer, orient=VERTICAL, command=canvas.yview)
+    canvas = Canvas(outer, bg=palette["surface"], highlightthickness=0, bd=0)
+    scrollbar = ttk.Scrollbar(outer, orient=VERTICAL, command=canvas.yview)
     canvas.configure(yscrollcommand=scrollbar.set)
     canvas.grid(row=0, column=0, sticky=NSEW)
     scrollbar.grid(row=0, column=1, sticky=NS)
-    inner = Frame(canvas)
+    inner = Frame(canvas, bg=palette["surface"])
     canvas_window = canvas.create_window((0, 0), window=inner, anchor=NW)
     def on_inner_configure(event):
         canvas.configure(scrollregion=canvas.bbox(ALL))
@@ -333,14 +387,14 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                     humantime = humantime.isoformat()
                     humantime = humantime.split(".")[0]
                     humantime = humantime.replace("T",", ")
-                    attcheckinstatus.config(text="Status: Checked in successfully at "+humantime+".", fg="green")
-                    root.after(3000, lambda: attcheckinstatus.config(text="Status: ", fg="black"))
+                    attcheckinstatus.config(text="Status: Checked in successfully at "+humantime+".", fg=palette["accent"])
+                    root.after(3000, lambda: attcheckinstatus.config(text="Status: ", fg=palette["text"]))
                     attlistboxmemberupdate(epochframe)
                     attcheckinentry.delete(0, END)
                     return True
                 elif current == "in":
                     print("Error: User is already checked in")
-                    attcheckinstatus.config(text="Error: User is already checked in",fg="red")
+                    attcheckinstatus.config(text="Error: User is already checked in",fg=palette["danger"])
                     attcheckinentry.delete(0, END)
                     return False, "Error: User is already checked in"
                 else:
@@ -361,8 +415,8 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         humantime = humantime.isoformat()
                         humantime = humantime.split(".")[0]
                         humantime = humantime.replace("T",", ")
-                        attcheckoutstatus.config(text="Status: Signed out successfully at "+humantime+".", fg="green")
-                        root.after(3000, lambda: attcheckoutstatus.config(text="Status: ", fg="black"))
+                        attcheckoutstatus.config(text="Status: Signed out successfully at "+humantime+".", fg=palette["accent"])
+                        root.after(3000, lambda: attcheckoutstatus.config(text="Status: ", fg=palette["text"]))
                         attlistboxmemberupdate(epochframe)
                         attcheckoutentry.delete(0, END)
                         return True
@@ -373,7 +427,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         return False, "Error: Unexpected value inout: "+inout
                 elif current == "out":
                     print("Error: User is already checked out")
-                    attcheckoutstatus.config(text="Status: Error, User is already signed out",fg="red")
+                    attcheckoutstatus.config(text="Status: Error, User is already signed out",fg=palette["danger"])
                     attcheckoutentry.delete(0, END)
                     return False, "Error: User is already checked out"
                 else:
@@ -388,9 +442,9 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
         else:
             print("Error: member id not found")
             if inout == "out":
-                attcheckoutstatus.config(text="Error: member id not found",fg="red")
+                attcheckoutstatus.config(text="Error: member id not found",fg=palette["danger"])
             else:
-                attcheckinstatus.config(text="Error: member id not found",fg="red")
+                attcheckinstatus.config(text="Error: member id not found",fg=palette["danger"])
             return False, "Error: member id not found"
     elif group == "inv":
         if inout == "in":
@@ -399,7 +453,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                 print("id found")
                 if master["invmaster"]["members"][id]["checkout"]["status"] == "in":
                     e = "ERROR: item already checked in"
-                    invcheckinstatus.config(text="Status: "+e, fg="red")
+                    invcheckinstatus.config(text="Status: "+e, fg=palette["danger"])
                     invcheckinentry.delete(0, END)
                     return False, e
                 else:
@@ -411,14 +465,14 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                         "notes": master["invmaster"]["members"][id]["checkout"]["notes"]
                     }
                     
-                    invcheckinstatus.config(text="Status: "+master["invmaster"]["members"][id]["name"]+" Checked In Successfully", fg="green")
+                    invcheckinstatus.config(text="Status: "+master["invmaster"]["members"][id]["name"]+" Checked In Successfully", fg=palette["accent"])
                     invcheckinentry.delete(0, END)
                     invlistboxupdate()
                     return True
 
             else:
                 e = "ERROR: id not found"
-                invcheckinstatus.config(text="Status: "+e, fg="red")
+                invcheckinstatus.config(text="Status: "+e, fg=palette["danger"])
                 invcheckinentry.delete(0, END)
                 return False, e
             
@@ -429,7 +483,7 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                     print("id found")
                     if master["invmaster"]["members"][id]["checkout"]["status"] == "out":
                         e = "ERROR: item already checked out"
-                        invcheckoutstatus.config(text="Status: "+e, fg="red")
+                        invcheckoutstatus.config(text="Status: "+e, fg=palette["danger"])
                         invcheckoutentry.delete(0, END)
                         return False, e
                     else:
@@ -453,22 +507,22 @@ def jsoncheckinout(event, group, inout, id, owner="N/A"):
                             }
                             invcheckoutentry.delete(0, END)
                             invcheckoutownerentry.delete(0, END)
-                            invcheckoutstatus.config(text="Status: Checked Out Successfully", fg="green")
+                            invcheckoutstatus.config(text="Status: Checked Out Successfully", fg=palette["accent"])
                             invlistboxupdate()
                             return True
                         else:
                             e = "ERROR: due date not set"
-                            invcheckoutstatus.config(text="Status: "+e, fg="red")
+                            invcheckoutstatus.config(text="Status: "+e, fg=palette["danger"])
                             invcheckoutentry.delete(0, END)
                             return False, e
                 else:
                     e = "ERROR: id not found"
-                    invcheckoutstatus.config(text="Status: "+e, fg="red")
+                    invcheckoutstatus.config(text="Status: "+e, fg=palette["danger"])
                     invcheckoutentry.delete(0, END)
                     return False, e
             else:
                 e = "ERROR: owner not set"
-                invcheckoutstatus.config(text="Status: "+e, fg="red")
+                invcheckoutstatus.config(text="Status: "+e, fg=palette["danger"])
                 invcheckoutentry.delete(0, END)
                 return False, e
         else:
@@ -492,6 +546,9 @@ if True: #WINDOWCONFIG
         attwindow.rowconfigure(row, weight=1)
         manwindow.rowconfigure(row, weight=1)
         root.rowconfigure(row, weight=1)
+    for row in range(9):
+        root.rowconfigure(row, weight=0)
+    root.rowconfigure(4, weight=1)
     for rcol in range(7):
         secwindow.columnconfigure(rcol, weight=1)
         secwindow.rowconfigure(rcol, weight=1)
@@ -499,6 +556,32 @@ if True: #WINDOWCONFIG
     
 #MAIN WINDOW ELEMENTS BELOW
 if True:
+
+    def rounded_shape_points(width, height, radius):
+        radius = min(radius, width / 2, height / 2)
+        points = []
+        for center_x, center_y, start_angle in ((width - radius, radius, -90), (width - radius, height - radius, 0), (radius, height - radius, 90), (radius, radius, 180)):
+            for step in range(5):
+                angle = math.radians(start_angle + step * 22.5)
+                points.extend((center_x + radius * math.cos(angle), center_y + radius * math.sin(angle)))
+        return points
+
+    def make_rounded_button(parent, text, command, fill, hover_fill, foreground, width=140, height=40):
+        button = Canvas(parent, width=width, height=height, bg=parent.cget("bg"), bd=0, highlightthickness=0, takefocus=True, cursor="hand2")
+        shape = button.create_polygon(*rounded_shape_points(width, height, 10), fill=fill, outline="")
+        caption = button.create_text(width / 2, height / 2, text=text, fill=foreground, font=("Segoe UI", 9, "bold"))
+
+        def resize(event):
+            button.coords(shape, *rounded_shape_points(event.width, event.height, 10))
+            button.coords(caption, event.width / 2, event.height / 2)
+
+        button.bind("<Configure>", resize)
+        button.bind("<Enter>", lambda event: button.itemconfigure(shape, fill=hover_fill))
+        button.bind("<Leave>", lambda event: button.itemconfigure(shape, fill=fill))
+        button.bind("<Button-1>", lambda event: command())
+        button.bind("<Return>", lambda event: command())
+        button.bind("<space>", lambda event: command())
+        return button
 
     #CUSTOM TITLE BAR BELOW
     if True:
@@ -519,47 +602,83 @@ if True:
             root.overrideredirect(True)
             root.deiconify()
 
-        titlebar = Frame(root, bg="#B7B5B5", relief="raised", bd=0)
+        titlebar = Canvas(root, bg=palette["background"], height=48, bd=0, highlightthickness=0)
+        titlebar_shape = titlebar.create_polygon(*rounded_shape_points(960, 48, 14), fill=palette["surface"], outline="")
+        titlecontent = Frame(titlebar, bg=palette["surface"], bd=0)
+        titlebar_window = titlebar.create_window(10, 4, window=titlecontent, anchor=NW, width=940, height=40)
 
+        def resizetitlebar(event):
+            titlebar.coords(titlebar_shape, *rounded_shape_points(event.width, event.height, 14))
+            titlebar.itemconfigure(titlebar_window, width=max(event.width - 20, 1), height=max(event.height - 8, 1))
+
+        titlebar.bind("<Configure>", resizetitlebar)
         titlebar.bind("<Button-1>", startmove)
         titlebar.bind("<B1-Motion>", movewindow)
-        titlelabel = Label(titlebar, text="ScoutDB", bg="#B7B5B5", fg="white")
-        titlelabel.pack(side="left", padx=10)
-        closebutton = Button(titlebar, text="X", command=root.destroy, bg="#B7B5B5", fg="white", relief="flat")
-        closebutton.pack(side="right", padx=5)
-
-        minimizebutton = Button(titlebar, text="_", command=minimizewindow, bg="#B7B5B5", fg="white", relief="flat")
-        minimizebutton.pack(side="right")
-        titlebar.grid(row=0, column=0, columnspan=12, sticky=NSEW)
+        titlecontent.bind("<Button-1>", startmove)
+        titlecontent.bind("<B1-Motion>", movewindow)
+        titlelabel = Label(titlecontent, text="ScoutDB", bg=palette["surface"], fg=palette["text"], font=("Segoe UI", 11, "bold"))
+        titlelabel.pack(side="left", padx=(18, 10))
+        titlelabel.bind("<Button-1>", startmove)
+        titlelabel.bind("<B1-Motion>", movewindow)
+        closebutton = make_rounded_button(titlecontent, "X", root.destroy, palette["danger"], "#bd4b52", "white", width=34, height=28)
+        closebutton.pack(side="right", padx=(6, 12), pady=6)
+        minimizebutton = make_rounded_button(titlecontent, "-", minimizewindow, palette["surface_alt"], palette["border"], palette["text"], width=34, height=28)
+        minimizebutton.pack(side="right", pady=6)
+        titlebar.grid(row=0, column=0, columnspan=12, sticky=NSEW, padx=12, pady=(10, 0))
 
         root.bind("<Map>", lambda event: root.overrideredirect(True) if root.state() == "normal" else None)
 
-        
+    homeheader = Frame(root, bg=palette["background"])
+    homeheader.columnconfigure(0, weight=1)
+    welcomelabel = Label(homeheader, text="Workspace", font=("Segoe UI", 24, "bold"), bg=palette["background"], fg=palette["text"])
+    workspacedescription = Label(homeheader, text="Scout operations and records", font=("Segoe UI", 10), bg=palette["background"], fg=palette["muted"])
+    syncbutton = make_rounded_button(homeheader, "Sync...", lambda: None, palette["surface_alt"], palette["border"], palette["text"], width=96, height=38)
+    savebutton = make_rounded_button(homeheader, "Save data", savejson, palette["accent"], palette["accent_hover"], palette["background"], width=100, height=38)
+    welcomelabel.grid(row=0, column=0, sticky=SW, padx=(0, 8), pady=(34, 2))
+    workspacedescription.grid(row=1, column=0, sticky=NW, padx=(0, 8))
+    syncbutton.grid(row=0, column=1, rowspan=2, sticky=E, padx=(6, 6), pady=(34, 0))
+    savebutton.grid(row=0, column=2, rowspan=2, sticky=E, padx=(6, 0), pady=(34, 0))
+    homeheader.grid(row=1, column=0, columnspan=12, sticky=EW, padx=40)
 
+    homecontent = Frame(root, bg=palette["background"])
+    for column in range(3):
+        homecontent.columnconfigure(column, weight=1, uniform="homecards")
+    homecontent.rowconfigure(0, weight=1)
 
+    inventorycard = Frame(homecontent, bg=palette["surface"], highlightbackground=palette["border"], highlightthickness=1, padx=18, pady=18)
+    attendancecard = Frame(homecontent, bg=palette["surface"], highlightbackground=palette["border"], highlightthickness=1, padx=18, pady=18)
+    managementcard = Frame(homecontent, bg=palette["surface"], highlightbackground=palette["border"], highlightthickness=1, padx=18, pady=18)
+    for card in (inventorycard, attendancecard, managementcard):
+        card.grid_propagate(False)
+        card.columnconfigure(0, weight=1)
 
-    invbutton = Button(root, text="Inventory", command=lambda:windowtoggle(True, "inv"))
-    attbutton = Button(root, text="Attendance", command=lambda:windowtoggle(True, "att"))
-    manbutton = Button(root, text="Management", command=lambda:windowtoggle(True, "man"))
-    welcomelabel = Label(root, text="Scout32", font=("Helvetica", 20, "bold", "italic"))
-    syncbutton = Button(root, text="Sync...")
-    #secbutton = Button(root, text="Security")
-    savebutton = Button(root, text="Save", command=savejson)
+    Label(inventorycard, text="01  /  EQUIPMENT", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(inventorycard, text="Track gear, checkouts, and returns.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
+    invbutton = make_rounded_button(inventorycard, "Open inventory", lambda:windowtoggle(True, "inv"), palette["surface_alt"], palette["border"], palette["text"])
+    invbutton.grid(row=2, column=0, sticky=EW)
 
-    invbutton.grid(row=4, column=1,sticky=NSEW, columnspan=3)
-    attbutton.grid(row=4, column=4, sticky=NSEW, columnspan=3)
-    manbutton.grid(row=4, column=7, sticky=NSEW, columnspan=3)
-    welcomelabel.grid(row=1,column=0)
-    syncbutton.grid(row=1, column=11, sticky=NSEW)
-    #secbutton.grid(row=1, column=10, sticky=NSEW)
-    savebutton.grid(row=1, column=10, sticky=NSEW)
+    Label(attendancecard, text="02  /  PEOPLE", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(attendancecard, text="Manage attendance and member activity.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
+    attbutton = make_rounded_button(attendancecard, "Open attendance", lambda:windowtoggle(True, "att"), palette["surface_alt"], palette["border"], palette["text"])
+    attbutton.grid(row=2, column=0, sticky=EW)
+
+    Label(managementcard, text="03  /  ADMIN", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(managementcard, text="Maintain members, equipment, and records.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
+    manbutton = make_rounded_button(managementcard, "Open management", lambda:windowtoggle(True, "man"), palette["surface_alt"], palette["border"], palette["text"])
+    manbutton.grid(row=2, column=0, sticky=EW)
+
+    Label(root, text="LOCAL DATABASE  |  READY", bg=palette["background"], fg=palette["muted"], font=("Segoe UI", 8, "bold")).grid(row=7, column=0, columnspan=12, sticky=S, pady=(0, 16))
+    inventorycard.grid(row=0, column=0, sticky=NSEW, padx=(0, 6), pady=8, ipady=8)
+    attendancecard.grid(row=0, column=1, sticky=NSEW, padx=6, pady=8, ipady=8)
+    managementcard.grid(row=0, column=2, sticky=NSEW, padx=(6, 0), pady=8, ipady=8)
+    homecontent.grid(row=4, column=0, columnspan=12, sticky=NSEW, padx=40, pady=(18, 24))
 
 #INV WINDOW ELEMENTS BELOW
 if True:
 
     
 
-    invlabel = Label(invwindow, text="Inventory", font=("Helvetica", 14, "bold", "italic"))
+    invlabel = Label(invwindow, text="Inventory", font=("Segoe UI", 14, "bold"))
     invbackbutton = Button(invwindow, text="Back", command=lambda:windowtoggle(False, "inv"))
     invtab = ttk.Notebook(invwindow)
     invlistbox = Listbox(invwindow)
@@ -586,11 +705,11 @@ if True:
     
     #CHECK IN FRAME ELEMENTS BELOW
     if True:
-        invcheckintitle = Label(invcheckincontent, text="Check In", font=("Helvetica", 14, "bold", "italic"))
-        invcheckinintro = Label(invcheckincontent, text="In the \"Check In\" page, you can check in gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        invcheckintitle = Label(invcheckincontent, text="Check In", font=("Segoe UI", 14, "bold"))
+        invcheckinintro = Label(invcheckincontent, text="In the \"Check In\" page, you can check in gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work.", font=("Segoe UI", 10), wraplength=430, justify="left" )
         invcheckinlabel1 = Label(invcheckincontent, text="Enter item ID:")
         invcheckinentry = Entry(invcheckincontent)
-        invcheckinstatus = Label(invcheckincontent, text="Status: N/A", font=("Helvetica", 12, "bold"))
+        invcheckinstatus = Label(invcheckincontent, text="Status: N/A", font=("Segoe UI", 10, "bold"))
 
 
         invcheckintitle.grid(row=0, column=0, sticky=NW)
@@ -604,17 +723,21 @@ if True:
 
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
-        invcheckouttitle = Label(invcheckoutcontent, text="Check Out", font=("Helvetica", 14, "bold", "italic"))
-        invcheckoutintro = Label(invcheckoutcontent, text="In the \"Check Out\" page, you can check out gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work, and that you need to set a due date for the item.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        invcheckouttitle = Label(invcheckoutcontent, text="Check Out", font=("Segoe UI", 14, "bold"))
+        invcheckoutintro = Label(invcheckoutcontent, text="In the \"Check Out\" page, you can check out gear by either using a barcode scanner or by manually entering the id in the entry below and pressing enter. Note that your barcode scanner must be configured to press enter after each scan to work, and that you need to set a due date for the item.", font=("Segoe UI", 10), wraplength=430, justify="left" )
         invcheckoutlabel1 = Label(invcheckoutcontent, text="Enter item ID:")
         invcheckoutentry = Entry(invcheckoutcontent)
-        invcheckoutstatus = Label(invcheckoutcontent, text="Status: N/A", font=("Helvetica", 12, "bold"))
+        invcheckoutstatus = Label(invcheckoutcontent, text="Status: N/A", font=("Segoe UI", 10, "bold"))
         invcheckoutdueby = DateEntry(
             invcheckoutcontent,
             width=18,
-            background="darkblue", 
-            foreground="white",
-            borderwidth=2,
+            background=palette["surface_alt"],
+            foreground=palette["text"],
+            borderwidth=0,
+            selectbackground=palette["accent"],
+            selectforeground=palette["background"],
+            headersbackground=palette["surface"],
+            headersforeground=palette["muted"],
             date_pattern="yyyy-mm-dd"
         )
         invcheckoutlabel2 = Label(invcheckoutcontent, text="Due By:")
@@ -636,20 +759,20 @@ if True:
 
     #ISSUES FRAME ELEMENTS BELOW
     if True:
-        invissuestitle = Label(invissuescontent, text="Issues", font=("Helvetica", 14, "bold", "italic"))
+        invissuestitle = Label(invissuescontent, text="Issues", font=("Segoe UI", 14, "bold"))
         invissuestitle.grid(row=0, column=0, sticky=NW)
 
     #DETAILS FRAME ELEMENTS BELOW
     if True:
-        invdetailstitle = Label(invdetailscontent, text="Details", font=("Helvetica", 14, "bold", "italic"))
-        invdetailsintro = Label(invdetailscontent, text="Welcome to the details page, here you can examine inventory items in greater detail, as well as viewing timestamps such as checkouts and owners. If you wish to modify items, do so in the \"Management\" section.", font=("Helvetica", 12), wraplength=450, justify="left")
-        invdetailsname = Label(invdetailscontent, text="Name: ", font=("Helvetica", 12))
-        invdetailstag = Label(invdetailscontent, text="Tags: ", font=("Helvetica", 12))
-        invdetailsstatus = Label(invdetailscontent, text="Status: ", font=("Helvetica", 12))
-        invdetailstracked = Label(invdetailscontent, text="Tracked: ", font=("Helvetica", 12))
-        invdetailslastcheckout = Label(invdetailscontent, text="Last Checkout: ", font=("Helvetica", 12))
-        invdetailslastexpected = Label(invdetailscontent, text="Last Expected Return: ", font=("Helvetica", 12))
-        invdetailsnotes = Label(invdetailscontent, text="Notes: ", font=("Helvetica", 12))
+        invdetailstitle = Label(invdetailscontent, text="Details", font=("Segoe UI", 14, "bold"))
+        invdetailsintro = Label(invdetailscontent, text="Welcome to the details page, here you can examine inventory items in greater detail, as well as viewing timestamps such as checkouts and owners. If you wish to modify items, do so in the \"Management\" section.", font=("Segoe UI", 10), wraplength=450, justify="left")
+        invdetailsname = Label(invdetailscontent, text="Name: ", font=("Segoe UI", 10))
+        invdetailstag = Label(invdetailscontent, text="Tags: ", font=("Segoe UI", 10))
+        invdetailsstatus = Label(invdetailscontent, text="Status: ", font=("Segoe UI", 10))
+        invdetailstracked = Label(invdetailscontent, text="Tracked: ", font=("Segoe UI", 10))
+        invdetailslastcheckout = Label(invdetailscontent, text="Last Checkout: ", font=("Segoe UI", 10))
+        invdetailslastexpected = Label(invdetailscontent, text="Last Expected Return: ", font=("Segoe UI", 10))
+        invdetailsnotes = Label(invdetailscontent, text="Notes: ", font=("Segoe UI", 10))
 
         invdetailstitle.grid(row=0,column=0, sticky=NW)
         invdetailsintro.grid(row=1,column=0, sticky=NW)
@@ -713,20 +836,20 @@ if True:
             if master["invmaster"]["members"][item]["tracked"] == 1:
                 invlistbox.insert(END, str(item)+":"+master["invmaster"]["members"][item]["name"])
                 if master["invmaster"]["members"][item]["checkout"]["status"] == "in":
-                    invlistbox.itemconfig(confignum, bg="green")
+                    invlistbox.itemconfig(confignum, bg="#18372f", fg=palette["text"])
                 elif master["invmaster"]["members"][item]["checkout"]["status"] == "out":
-                    invlistbox.itemconfig(confignum, bg="red")
+                    invlistbox.itemconfig(confignum, bg="#3b252c", fg=palette["text"])
             else:
                 invlistbox.insert(END, str(item)+": "+item["name"])
-                invlistbox.itemconfig(confignum, bg="gray")
+                invlistbox.itemconfig(confignum, bg=palette["surface"], fg=palette["muted"])
             confignum += 1
         """
         for item in master["invmaster"]["members"].values():
             invlistbox.insert(END, item["name"])
             if item["checkout"]["status"] == "in":
-                invlistbox.itemconfig(confignum, bg="green")
+                invlistbox.itemconfig(confignum, bg="#18372f", fg=palette["text"])
             elif item["checkout"]["status"] == "out":
-                invlistbox.itemconfig(confignum, bg="red")
+                invlistbox.itemconfig(confignum, bg="#3b252c", fg=palette["text"])
             confignum += 1        
         """
 
@@ -755,7 +878,7 @@ if True:
 
     #DATE EXISTS WINDOW BELOW
     if True:
-        attdateexistwindow = Toplevel(attwindow)
+        attdateexistwindow = Toplevel(attwindow, bg=palette["background"])
         attdateexistwindow.title("Date Exists")
         attdateexistwindow.geometry("400x200")
         attdateexistwindow.withdraw()
@@ -775,7 +898,7 @@ if True:
             datecontinueflag = "none"
             attdateexistwindow.withdraw()
 
-        attdateexistlabel1 = Label(attdateexistwindow, text="The date you selected already exists in the attendance log. Do you want to overwrite or continue it?",font=("Helvetica", 12), wraplength=320, justify="center")
+        attdateexistlabel1 = Label(attdateexistwindow, text="The date you selected already exists in the attendance log. Do you want to overwrite or continue it?",font=("Segoe UI", 10), wraplength=320, justify="center")
         attdateexistoverwritebutton = Button(attdateexistwindow, text="Overwrite", command=dateexistoverwrite)
         attdateexistcontinuebutton = Button(attdateexistwindow, text="Continue", command=dateexistcontinue)
         attdateexistcancelbutton = Button(attdateexistwindow, text="Cancel", command=dateexistcancel)
@@ -829,7 +952,7 @@ if True:
             for tag in master["usrmaster"]["tags"]:
                 tagcompile = []
                 attlistbox.insert(END, tag)
-                attlistbox.itemconfig(confignum, bg="blue")
+                attlistbox.itemconfig(confignum, bg=palette["accent"], fg=palette["background"])
                 confignum += 1
                 for member in master["usrmaster"]["members"]:
                     if tag in master["usrmaster"]["members"][member]["tags"]:
@@ -855,7 +978,7 @@ if True:
                 for tag in master["usrmaster"]["tags"]:
                     tagcompile = []
                     attlistbox.insert(END, tag)
-                    attlistbox.itemconfig(confignum, bg="blue")
+                    attlistbox.itemconfig(confignum, bg=palette["accent"], fg=palette["background"])
                     confignum += 1
                     for member in master["usrmaster"]["members"]:
                         if tag in master["usrmaster"]["members"][member]["tags"]:
@@ -877,9 +1000,9 @@ if True:
                             print(mostrecentepoch)
 
                             if attlog["dates"][epoch][id][mostrecentepoch]["status"] == "in":
-                                attlistbox.itemconfig(confignum, bg="green")
+                                attlistbox.itemconfig(confignum, bg="#18372f", fg=palette["text"])
                             elif attlog["dates"][epoch][id][mostrecentepoch]["status"] == "out":
-                                attlistbox.itemconfig(confignum, bg="red")
+                                attlistbox.itemconfig(confignum, bg="#3b252c", fg=palette["text"])
                             else:
                                 print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"]["+mostrecentepoch+"][\"status\"]!")
                                 attlistbox.itemconfig(confignum, bg="purple")
@@ -929,15 +1052,19 @@ if True:
             
 #########################################################################CONTINUE HERE
 
-        attinitializetitle = Label(attinitializecontent, text="Initialize Attendance", font=("Helvetica", 14, "bold", "italic"))
-        attinitializeintro = Label(attinitializecontent, text="In the \"Initialize\" page, you can initialize attendance for a specific date. This will create a new entry in the attendance log for that date, and will allow you to check in members for that date.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attinitializetitle = Label(attinitializecontent, text="Initialize Attendance", font=("Segoe UI", 14, "bold"))
+        attinitializeintro = Label(attinitializecontent, text="In the \"Initialize\" page, you can initialize attendance for a specific date. This will create a new entry in the attendance log for that date, and will allow you to check in members for that date.", font=("Segoe UI", 10), wraplength=430, justify="left" )
         attinitializelabel1 = Label(attinitializecontent, text="Enter date:")
         attinitializedate = DateEntry(
             attinitializecontent,
             width=18,
-            background="darkblue", 
-            foreground="white",
-            borderwidth=2,
+            background=palette["surface_alt"],
+            foreground=palette["text"],
+            borderwidth=0,
+            selectbackground=palette["accent"],
+            selectforeground=palette["background"],
+            headersbackground=palette["surface"],
+            headersforeground=palette["muted"],
             date_pattern="yyyy-mm-dd"
         )
         attinitializebutton = Button(attinitializecontent, text="Initialize", command=attinit)
@@ -949,8 +1076,8 @@ if True:
         attinitializebutton.grid(row=4,column=0, sticky=NW)
     #CHECK IN FRAME ELEMENTS BELOW
     if True:
-        attcheckintitle = Label(attcheckincontent, text="Check In", font=("Helvetica", 14, "bold", "italic"))
-        attcheckinintro = Label(attcheckincontent, text="In the \"Check In\" page, you can also check in members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attcheckintitle = Label(attcheckincontent, text="Check In", font=("Segoe UI", 14, "bold"))
+        attcheckinintro = Label(attcheckincontent, text="In the \"Check In\" page, you can also check in members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Segoe UI", 10), wraplength=430, justify="left" )
         attcheckinlabel1 = Label(attcheckincontent, text="Enter member ID:")
         attcheckinentry = Entry(attcheckincontent)
         attcheckinlabel2 = Label(attcheckincontent, text="Notes:")
@@ -968,8 +1095,8 @@ if True:
         attcheckinentry.bind("<Return>", lambda event: jsoncheckinout(event, "att", "in", attcheckinentry.get()))
     #CHECK OUT FRAME ELEMENTS BELOW
     if True:
-        attcheckouttitle = Label(attcheckoutcontent, text="Check Out", font=("Helvetica", 14, "bold", "italic"))
-        attcheckoutintro = Label(attcheckoutcontent, text="In the \"Check Out\" page, you can sign out members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Helvetica", 12), wraplength=430, justify="left" )
+        attcheckouttitle = Label(attcheckoutcontent, text="Check Out", font=("Segoe UI", 14, "bold"))
+        attcheckoutintro = Label(attcheckoutcontent, text="In the \"Check Out\" page, you can sign out members by either using a barcode scanner or by manually entering the id in the entry below and pressing enter.", font=("Segoe UI", 10), wraplength=430, justify="left" )
         attcheckoutlabel1 = Label(attcheckoutcontent, text="Enter member ID:")
         attcheckoutentry = Entry(attcheckoutcontent)
         attcheckoutlabel2 = Label(attcheckoutcontent, text="Notes:")
@@ -990,17 +1117,17 @@ if True:
         pass   
     #DETAILS FRAME ELEMENTS BELOW
     if True:
-        attdetailstitle = Label(attdetailscontent, text="Details", font=("Helvetica", 14, "bold", "italic"))
-        attdetailsintro = Label(attdetailscontent, text="Welcome to the details page, here you can examine attendance records in greater detail, as well as viewing timestamps such as checkins and checkouts. If you wish to modify records, do so in the \"Management\" section.", font=("Helvetica", 12), wraplength=450, justify="left")
-        attdetailsname = Label(attdetailscontent, text="Name: ", font=("Helvetica", 12))
-        attdetailsbirthdate = Label(attdetailscontent, text="DOB: ", font=("Helvetica", 12))
-        attdetailstele = Label(attdetailscontent, text="Telephone/Guardian #: ", font=("Helvetica", 12))
-        attdetailstag = Label(attdetailscontent, text="Tags: ", font=("Helvetica", 12))
-        attdetailsstatus = Label(attdetailscontent, text="Status: ", font=("Helvetica", 12))
-        attdetailstracked = Label(attdetailscontent, text="Tracked: ", font=("Helvetica", 12))
-        attdetailslastcheckin = Label(attdetailscontent, text="Last Check In: ", font=("Helvetica", 12))
-        attdetailslastcheckout = Label(attdetailscontent, text="Last Check Out: ", font=("Helvetica", 12))
-        attdetailsnotes = Label(attdetailscontent, text="Notes: ", font=("Helvetica", 12))
+        attdetailstitle = Label(attdetailscontent, text="Details", font=("Segoe UI", 14, "bold"))
+        attdetailsintro = Label(attdetailscontent, text="Welcome to the details page, here you can examine attendance records in greater detail, as well as viewing timestamps such as checkins and checkouts. If you wish to modify records, do so in the \"Management\" section.", font=("Segoe UI", 10), wraplength=450, justify="left")
+        attdetailsname = Label(attdetailscontent, text="Name: ", font=("Segoe UI", 10))
+        attdetailsbirthdate = Label(attdetailscontent, text="DOB: ", font=("Segoe UI", 10))
+        attdetailstele = Label(attdetailscontent, text="Telephone/Guardian #: ", font=("Segoe UI", 10))
+        attdetailstag = Label(attdetailscontent, text="Tags: ", font=("Segoe UI", 10))
+        attdetailsstatus = Label(attdetailscontent, text="Status: ", font=("Segoe UI", 10))
+        attdetailstracked = Label(attdetailscontent, text="Tracked: ", font=("Segoe UI", 10))
+        attdetailslastcheckin = Label(attdetailscontent, text="Last Check In: ", font=("Segoe UI", 10))
+        attdetailslastcheckout = Label(attdetailscontent, text="Last Check Out: ", font=("Segoe UI", 10))
+        attdetailsnotes = Label(attdetailscontent, text="Notes: ", font=("Segoe UI", 10))
 
         def attlistboxviewdetails(event):
             global master, attlog, epochframe
@@ -1033,9 +1160,9 @@ if True:
                             print(mostrecentepoch)
 
                             if attlog["dates"][epoch][id][mostrecentepoch]["status"] == "in":
-                                attdetailsstatus.config(text="Status: In", fg="green")
+                                attdetailsstatus.config(text="Status: In", fg=palette["accent"])
                             elif attlog["dates"][epoch][id][mostrecentepoch]["status"] == "out":
-                                attdetailsstatus.config(text="Status: Out", fg="red")
+                                attdetailsstatus.config(text="Status: Out", fg=palette["danger"])
                             else:
                                 print("no status match in attlog[\"dates\"]["+epoch+"]["+id+"]["+mostrecentepoch+"][\"status\"]!")
                                 attdetailsstatus.config(text="Status: Unknown")
@@ -1067,7 +1194,7 @@ if True:
                                 buildout = buildout.replace("T",", ")
                                 attdetailslastcheckout.config(text="Last Check Out: "+buildout)
                         else:
-                            attdetailsstatus.config(text="Status: Out (no records found)",fg="red")
+                            attdetailsstatus.config(text="Status: Out (no records found)",fg=palette["danger"])
                             attdetailslastcheckin.config(text="Last Check In: N/A")
                             attdetailslastcheckout.config(text="Last Check Out: N/A")
                     atttab.select(attdetailsframe)
