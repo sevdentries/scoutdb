@@ -630,10 +630,11 @@ if True:
 
     homeheader = Frame(root, bg=palette["background"])
     homeheader.columnconfigure(0, weight=1)
-    welcomelabel = Label(homeheader, text="Workspace", font=("Segoe UI", 24, "bold"), bg=palette["background"], fg=palette["text"])
-    workspacedescription = Label(homeheader, text="Scout operations and records", font=("Segoe UI", 10), bg=palette["background"], fg=palette["muted"])
+    welcomelabel = Label(homeheader, text="Home", font=("Segoe UI", 24, "bold"), bg=palette["background"], fg=palette["text"])
+    workspacedescription = Label(homeheader, text="Management center", font=("Segoe UI", 10), bg=palette["background"], fg=palette["muted"])
     syncbutton = make_rounded_button(homeheader, "Sync...", lambda: None, palette["surface_alt"], palette["border"], palette["text"], width=96, height=38)
     savebutton = make_rounded_button(homeheader, "Save data", savejson, palette["accent"], palette["accent_hover"], palette["background"], width=100, height=38)
+
     welcomelabel.grid(row=0, column=0, sticky=SW, padx=(0, 8), pady=(34, 2))
     workspacedescription.grid(row=1, column=0, sticky=NW, padx=(0, 8))
     syncbutton.grid(row=0, column=1, rowspan=2, sticky=E, padx=(6, 6), pady=(34, 0))
@@ -652,18 +653,18 @@ if True:
         card.grid_propagate(False)
         card.columnconfigure(0, weight=1)
 
-    Label(inventorycard, text="01  /  EQUIPMENT", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(inventorycard, text="01 / EQUIPMENT", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
     Label(inventorycard, text="Track gear, checkouts, and returns.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
     invbutton = make_rounded_button(inventorycard, "Open inventory", lambda:windowtoggle(True, "inv"), palette["surface_alt"], palette["border"], palette["text"])
     invbutton.grid(row=2, column=0, sticky=EW)
 
-    Label(attendancecard, text="02  /  PEOPLE", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
-    Label(attendancecard, text="Manage attendance and member activity.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
+    Label(attendancecard, text="02 / PEOPLE", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(attendancecard, text="Manage attendance.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
     attbutton = make_rounded_button(attendancecard, "Open attendance", lambda:windowtoggle(True, "att"), palette["surface_alt"], palette["border"], palette["text"])
     attbutton.grid(row=2, column=0, sticky=EW)
 
-    Label(managementcard, text="03  /  ADMIN", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
-    Label(managementcard, text="Maintain members, equipment, and records.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
+    Label(managementcard, text="03 / ADMIN", bg=palette["surface"], fg=palette["accent"], font=("Segoe UI", 9, "bold")).grid(row=0, column=0, sticky=W)
+    Label(managementcard, text="Search, add, or modify members and inventory.", bg=palette["surface"], fg=palette["muted"], font=("Segoe UI", 10), wraplength=200, justify=LEFT).grid(row=1, column=0, sticky=NW, pady=(12, 20))
     manbutton = make_rounded_button(managementcard, "Open management", lambda:windowtoggle(True, "man"), palette["surface_alt"], palette["border"], palette["text"])
     manbutton.grid(row=2, column=0, sticky=EW)
 

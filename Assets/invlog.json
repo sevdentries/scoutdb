@@ -1,7 +1,7 @@
 {
     "name": "invlog",
     "desc": "inventory based log, used for storing dates and times. names are not listed here for security purposes.",
-    "datemodified": 1790811494.3798215,
+    "datemodified": 1790830118.8402846,
     "members": {
         "123456": {
             "current": "out",

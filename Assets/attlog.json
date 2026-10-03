@@ -1,19 +1,18 @@
 {
     "name": "attlog",
     "desc": "attendance based log, used for storing dates and times. names are not listed here for security purposes.",
-    "datemodified": 1789060324.3781228,
+    "datemodified": 1790830118.8402846,
     "dates": {
         "1789023600": {
             "123456": {
-                "1789038085":{
+                "1789038085": {
                     "status": "in",
                     "notes": "this is a test note."
                 },
-                "1789056072":{
+                "1789056072": {
                     "status": "out",
                     "notes": "this is a test note."
                 }
-                
             }
         }
     },
